@@ -1,0 +1,25 @@
+{
+  "empresa": [
+    {
+      "nombre": "MAKRO",
+      "direccion": "AUTOPISTA SUR",
+      "ciudad": "CALI",
+      "pais": "COLOMBIA",
+      "tipo_id": "NIT",
+      "id": "10203040"
+    },
+    {
+      "nombre": "COLOMBINA",
+      "direccion": "AUTOMISTA MOSQUERA AV.80",
+      "ciudad": "MOSQUERA",
+      "pais": "BOGOTA",
+      "tipo_id": "NIT",
+      "id": "10203040"
+    }
+  ],
+  "consecutivo": {
+    "nro_cartaporte": 6,
+    "nro_manifiesto": 3,
+    "nro_declaracion": 5
+  }
+}

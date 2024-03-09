@@ -1,0 +1,44 @@
+Manifiesto:
+----------
+1. No se está ingresando el nro de MCI.
+
+2. Bodegas no está tomando ni origen ni destino.
+
+3. Bodegas deben agregarse: una por una, pero:
+   a) Al agregarlas se debe dar click en agregar y
+      luego en aceptar (NUEVO)
+
+4. Tener en cuenta los dos valores en los certificados de habilitación
+  - Actualmente creo que solo estoy teniendo en cuenta uno solo.
+  - El primero va el certificado del vehículo
+  - El segundo es el certificado de la unidad de carga
+  - En el caso de SILO: no tienen en cuenta los guiones "-". Tocaría 
+    "crear" ese nro de certificado con el nro que se extraíga.
+
+5. Valores en SILOG con comas y puntos en formato colombiano pero se 
+   debe llevar al formato americano para el ECUAPASS.
+
+6. Fecha de nacimiento en NTA no la está tomando.
+
+7. Las unidades de dolares no toma las americanas.
+   - Usar el código
+
+8. En NTA el embalaje lo debe tomar de la casilla anterior (# 30)
+
+9. NTA: Secuencia poner por defecto 1 pero con precaución
+
+10. NTA: Doc IDs: NITs o RUCs pueden estar con puntos y la app no
+    no está detectando así.
+	- Tomarlos con puntos o sin puntos
+	- Limpiarlos para envíarlos al ECUAPASS
+
+11. Algunos valores por defecto para NTA;
+	- Forma de pago    : Por Cobrar
+	- Tipo de vehículo : Semiremolque
+	- Tipo de carga    : Carga Suelta
+
+12. En la creación de documentos: colocar el 1165
+
+
+
+
