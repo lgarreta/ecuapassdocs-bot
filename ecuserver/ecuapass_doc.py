@@ -88,7 +88,7 @@ def getNombreEmpresaFromSettings (runningDir):
 
 	settings     = json.load (open (settingsPath, encoding="utf-8")) 
 	empresaName  = settings ["empresa"]
-	print ("\t>>> Empresa actual: ", empresaName)
+	print (">>> Empresa actual: ", empresaName)
 	return empresaName
 
 #-----------------------------------------------------------
@@ -172,10 +172,13 @@ class EcuDoc:
 	#-- Load previous result
 	#----------------------------------------------------------------
 	def loadDocumentCache (inputFilepath):
+		print (">>> Buscando resultados previos...")
 		fieldsJsonFile = None
 		try:
-			filename       = os.path.basename (inputFilepath)
+			#filename       = os.path.basename (inputFilepath)
+			filename       = inputFilepath
 			pickleFilename = f"{filename.split ('.')[0]}-{EcuAzure.getCloudName()}-CACHE.pkl"
+			print (">>> Buscando archivo cache : ", pickleFilename)
 			if os.path.isfile (pickleFilename): 
 				printx ("Cargando campos desde cache del documento...")
 				with open (pickleFilename, 'rb') as inFile:

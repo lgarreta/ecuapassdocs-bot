@@ -1,1 +1,0 @@
-/home/lg/BIO/iaprojects/ecuapassdocs/apps/docsAnalisis/ecuserver/ecuapass_bot_declaracion.py

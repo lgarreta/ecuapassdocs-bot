@@ -1,6 +1,8 @@
 
 import os, time, sys
+
 import pyautogui as py
+
 from ecuapass_bot import EcuBot
 from traceback import format_exc as traceback_format_exc
 
@@ -60,54 +62,18 @@ class EcuBotCartaporte (EcuBot):
 			Utils.scrollN (5)
 
 			# Remitente
-			time.sleep (PAUSE)
-			self.fillBox ("10_PaisRemitente"); py.press ("Tab")
-			self.fillBox ("11_TipoIdRemitente") ; py.press ("Tab")
-			self.fillText ("12_NroIdRemitente"); py.press ("Tab")
-
-			# Skip the find button
-#			if all ([self.fields ["05_TipoProcedimiento"],
-#			         self.fields ["10_PaisRemitente"], self.fields ["11_TipoIdRemitente"]]):
-#				if "EXPORTACION" in self.fields ["05_TipoProcedimiento"] and \
-#				   "ECUADOR" in self.fields ["10_PaisRemitente"] and "RUC" in self.fields ["11_TipoIdRemitente"]:
-#					py.press ("Tab")   # Skip Boton buscar
-
-			self.fillText ("13_NroCertSanitario"); py.press ("Tab")
-			self.fillText ("14_NombreRemitente"); py.press ("Tab")
-			self.fillText ("15_DireccionRemitente"); py.press ("Tab")
+			self.fillSubject ("REMITENTE", "05_TipoProcedimiento", "10_PaisRemitente", 
+			                  "11_TipoIdRemitente", "12_NroIdRemitente", "14_NombreRemitente",
+												"15_DireccionRemitente", "13_NroCertSanitario")
 
 			# Destinatario
-			time.sleep (PAUSE)
-			self.fillBox ("16_PaisDestinatario"); py.press ("Tab")
-			self.fillBox ("17_TipoIdDestinatario"); py.press ("Tab")
-			self.fillText ("18_NroIdDestinatario"); py.press ("Tab")
-
-			# Skip the find button
-#			if all ([self.fields ["05_TipoProcedimiento"],
-#			         self.fields ["16_PaisDestinatario"], self.fields ["17_TipoIdDestinatario"]]):
-#				if "IMPORTACION" in self.fields ["05_TipoProcedimiento"] and \
-#				   "ECUADOR" in self.fields ["16_PaisDestinatario"] and "RUC" in self.fields ["17_TipoIdDestinatario"]:
-#					py.press ("Tab")   # Skip Boton buscar
-
-			self.fillText ("19_NombreDestinatario"); py.press ("Tab")
-			self.fillText ("20_DireccionDestinatario"); py.press ("Tab")
+			self.fillSubject ("DESTINATARIO", "05_TipoProcedimiento", "16_PaisDestinatario", "17_TipoIdDestinatario",
+			                  "18_NroIdDestinatario", "19_NombreDestinatario", "20_DireccionDestinatario")
 
 			# Consignatario
-			time.sleep (PAUSE)
-			self.fillBox ("21_PaisConsignatario"); py.press ("Tab")
-			self.fillBox ("22_TipoIdConsignatario"); py.press ("Tab")
-			self.fillText ("23_NroIdConsignatario"); py.press ("Tab")
-
-			# Skip the find button
-#			if all ([self.fields ["05_TipoProcedimiento"],
-#			         self.fields ["21_PaisConsignatario"], self.fields ["22_TipoIdConsignatario"]]):
-#				if "IMPORTACION" in self.fields ["05_TipoProcedimiento"] and \
-#				   "ECUADOR" in self.fields ["21_PaisConsignatario"] and "RUC" in self.fields ["22_TipoIdConsignatario"]:
-#					py.sleep (0.5)
-#					py.press ("Tab")   # Skip Boton buscar
-
-			self.fillText ("24_NombreConsignatario"); py.press ("Tab")
-			self.fillText ("25_DireccionConsignatario"); py.press ("Tab")
+			self.fillSubject ("CONSIGNATARIO", "05_TipoProcedimiento", "21_PaisConsignatario", "22_TipoIdConsignatario",
+			                  "23_NroIdConsignatario", "24_NombreConsignatario", "25_DireccionConsignatario")
+			sys.exit (0)
 
 			Utils.scrollN (10)
 
@@ -210,6 +176,10 @@ class EcuBotCartaporte (EcuBot):
 			self.fillText ("78_NroCertSanitario"); py.press ("Tab")
 			self.fillText ("79_DescripcionCarga"); py.press ("Tab")
 
+			# Valid RUC ID with find button in 'Remitente', 'Destinatario', 'Consignatario'
+			#if "IMPORTACION" in self.fields ["05_TipoProcedimiento"]:
+				
+
 		except Exception as ex:
 			Utils.printx (f"EXCEPCION: Problemas al llenar documento '{self.jsonFilepath}'")
 			print (traceback_format_exc())
@@ -219,3 +189,5 @@ class EcuBotCartaporte (EcuBot):
 
 if __name__ == "__main__":
 	main()
+
+

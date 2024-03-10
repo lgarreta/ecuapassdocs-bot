@@ -1,0 +1,7 @@
+{
+  "empresa": "NTA",
+  "url_creador": "https://ecuapassdocs-production.up.railway.app",
+  "url_ecuapass": "URL ECUAPASS",
+  "global_pause": "0.05",
+  "slow_pause": "0.1"
+}

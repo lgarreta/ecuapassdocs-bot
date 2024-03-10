@@ -2,8 +2,10 @@ import re, os, sys, json
 import pyautogui as py
 import keyboard as kb
 
+import pyperclip
 from pyperclip import copy as pyperclip_copy
 from pyperclip import paste as pyperclip_paste
+
 from traceback import format_exc as traceback_format_exc
 from ecuapassdocs.utils.ecuapass_utils import Utils
 
@@ -34,12 +36,13 @@ class EcuBot:
 		self.notFilledFields = []     # List of fields not filled by the bot
 
 		# Read settings 
-		settingsPath      = os.path.join (runningDir, "settings.txt")
-		settings          = json.load (open (settingsPath, encoding="utf-8")) 
-		self.GLOBAL_PAUSE = float (settings ["global_pause"])
-		self.SLOW_PAUSE   = float (settings ["slow_pause"])
+		settingsPath       = os.path.join (runningDir, "settings.txt")
+		settings           = json.load (open (settingsPath, encoding="utf-8")) 
+		self.empresa       = settings ["empresa"]
+		self.GLOBAL_PAUSE  = float (settings ["global_pause"])
+		self.SLOW_PAUSE    = float (settings ["slow_pause"])
 		#self.FILL_PAUSE   = float (settings ["fill_pause"])
-		py.PAUSE          = self.GLOBAL_PAUSE
+		py.PAUSE           = self.GLOBAL_PAUSE
 
 		Utils.printx (">>> BOT Settings:")
 		Utils.printx (f"\t>>> Company: <{settings ['empresa']}>")
@@ -62,6 +65,43 @@ class EcuBot:
 		py.press ("enter")
 
 	#--------------------------------------------------------------------
+	# Detects if cursor is over find button
+	#--------------------------------------------------------------------
+	def isOnFindButton (self):
+		py.press ("X")
+		pyperclip.copy(''); py.hotkey ("ctrl", "a"); py.hotkey ("ctrl","c"); 
+		text   = pyperclip.paste()
+		if text == "X":
+			print ("-- Not, in find button")
+			py.hotkey ("ctrl", "a"); py.press ("del"); 
+			return False
+		else:
+			print ("-- Yes, in find button")
+			return True
+			
+
+	#--------------------------------------------------------------------
+	# fill subject fields taking into account RUC info, if exists.
+	#--------------------------------------------------------------------
+	def fillSubject (self, subjectType, fieldProcedimiento, fieldPais, fieldTipoId, 
+	                 fieldNumeroId, fieldNombre, fieldDireccion, fieldCertificado=None):
+		print ("--", "in fillSubject")
+		for i in range (2):
+			self.fillBox (fieldPais); py.press ("Tab")
+			self.fillBox (fieldTipoId); py.press ("Tab")
+			self.fillText (fieldNumeroId); py.press ("Tab")
+			[py.hotkey ("shift", "Tab") for k in range (3) if i < 1]
+
+		if self.isOnFindButton ():
+			py.press ("space"); py.sleep (1)
+		else:
+			if subjectType == "REMITENTE":
+				self.fillText (fieldCertificado); py.press ("Tab")
+			self.fillText (fieldNombre); py.press ("Tab")
+
+		self.fillText (fieldDireccion); py.press ("Tab")
+
+	#--------------------------------------------------------------------
 	# Fill one of three radio buttons (PO, CI, PEOTP) according to input info
 	#--------------------------------------------------------------------
 	def fillRButton (self, fieldName):
@@ -75,6 +115,7 @@ class EcuBot:
 	#-- fill text field
 	#--------------------------------------------------------------------
 	def fillText (self, fieldName, PAUSE=None):
+		value = None
 		py.PAUSE = self.SLOW_PAUSE
 		try:
 			value = self.fields [fieldName]
@@ -87,42 +128,7 @@ class EcuBot:
 			py.sleep (self.SLOW_PAUSE)
 		finally:
 			py.PAUSE = self.GLOBAL_PAUSE
-
-#	def old_fillText (self, fieldName, PAUSE=None):
-#		py.PAUSE = PAUSE if PAUSE else self.GLOBAL_PAUSE
-#
-#		value = self.fields [fieldName]
-#		Utils.printx (f"Llenando TextField '{fieldName}' : '{value}'...")
-#		if value == None:
-#			return
-#
-#		# Copy value into form and check the operation
-#		for i in range (15):
-#			print (f"Intento '{i+1}'...", end="") 
-#			py.sleep (0.1)
-#			pyperclip_copy (value)
-#			py.hotkey ("ctrl", "v")
-#			py.sleep (0.1)
-#			pyperclip_copy ("")
-#			py.hotkey ("ctrl", "a", "c")
-#			py.sleep (0.1)
-#			formValue = pyperclip_paste () 
-#			py.sleep (0.1)
-#			print (f">>> FORM VALUE IS: '{formValue}'", end="")
-#			if formValue == "":
-#				print ("...No copiado")
-#			else:
-#				print ("...Copiado")
-#				break
-#			py.PAUSE += 0.1
-#
-#		py.pause = self.GLOBAL_PAUSE
-#		
-#		if formValue == "":
-#			print (f"No se pudo copiar '{fieldName}'")
-#			print (f"FormValue: '{formValue}', Value: '{value}'")
-#			sys.exit (0)
-#
+		return value
 
 	#--------------------------------------------------------------------
 	#-- Fill combo box pasting text and selecting first value.
@@ -145,167 +151,6 @@ class EcuBot:
 			return
 		finally:
 			py.PAUSE = self.GLOBAL_PAUSE
-
-
-#	def fillBoxSleeps (self, fieldName, PAUSE=None):
-#		PAUSE = PAUSE if PAUSE else self.FILL_PAUSE
-#		#print (">>> BOX FILL PAUSE: ", PAUSE)
-#		try:
-#			fieldValue = self.fields [fieldName]
-#			if fieldValue == None:
-#				return
-#
-#			for i in range (5):
-#				print (f"Intento '{i+1}'...", end="") 
-#				Utils.printx (f"Llenando fillBox '{fieldName}' : '{fieldValue}'...")
-#				pyperclip_copy (fieldValue)
-#				py.sleep (PAUSE)
-#				kb.send ("ctrl+v")
-#				kb.send ("down")
-#				py.sleep (PAUSE)
-#
-#				# Check if selection is null
-#				pyperclip_copy ("")
-#				py.sleep (PAUSE)
-#				kb.send ("ctrl+a+c")
-#				py.sleep (PAUSE)
-#				formValue = pyperclip_paste () 
-#				py.sleep (PAUSE)
-#				print (f">>> FORM VALUE IS: '{formValue}'")
-#
-#				if formValue != "" and fieldValue.upper() in formValue.upper():
-#					print (f">>> Copiando {formValue}")
-#					pyperclip_copy (fieldValue)
-#					py.sleep (PAUSE)
-#					kb.send ("ctrl+v")
-#					py.sleep (PAUSE)
-#					kb.send ("down")
-#				else:
-#					Utils.printx (f"Buscando '{fieldValue}' en '{fieldName}'. \
-#					                Se encontró: '{formValue}'")
-#					continue
-#
-#				py.sleep (PAUSE)
-#				kb.send ("enter")
-#				return
-#
-#			# Not found item so select default "--selección--"	
-#			Utils.printx (f">>> Finalizada búsqueda. No encontrado '{fieldValue}'")
-#			self.notFilledFields.append ((fieldName, fieldValue))
-#
-#			self.fields [fieldName] = None
-#			kb.send ("ctrl+a")
-#			kb.write ("--")
-#			kb.press ("down")
-#			kb.press ("enter")
-#		finally:
-#			py.PAUSE = self.GLOBAL_PAUSE
-#
-#	def fillBoxPyAutogui (self, fieldName):
-#		print ("PAUSE: ", py.PAUSE)
-#		try:
-#			fieldValue = self.fields [fieldName]
-#			if fieldValue == None:
-#				return
-#
-#			for i in range (5):
-#				print (f"Intento '{i+1}'...", end="") 
-#				Utils.printx (f"Llenando fillBox '{fieldName}' : '{fieldValue}'...")
-#				pyperclip_copy (fieldValue)
-#				py.sleep (0.2)
-#				py.hotkey ("ctrl", "v")
-#				py.sleep (0.2)
-#				py.press ("down")
-#
-#				# Check if selection is null
-#				pyperclip_copy ("")
-#				py.hotkey ("ctrl", "a", "c")
-#				py.sleep (0.1)
-#				formValue = pyperclip_paste () 
-#				py.sleep (0.1)
-#				print (f">>> FORM VALUE IS: '{formValue}'")
-#
-#				if formValue != "" and fieldValue.upper() in formValue.upper():
-#					print (f">>> Copiando {formValue}")
-#					pyperclip_copy (fieldValue)
-#					py.sleep (0.1)
-#					py.hotkey ("ctrl", "v")
-#					py.sleep (0.1)
-#					py.press ("down")
-#					py.sleep (0.1)
-#				else:
-#					Utils.printx (f"Buscando '{fieldValue}' en '{fieldName}'. \
-#					                Se encontró: '{formValue}'")
-#					continue
-#
-#				py.press ("enter")
-#				return
-#
-#			# Not found item so select default "--selección--"	
-#			Utils.printx (f">>> Finalizada búsqueda. No encontrado '{fieldValue}'")
-#			self.notFilledFields.append ((fieldName, fieldValue))
-#
-#			self.fields [fieldName] = None
-#			py.hotkey ("ctrl", "a")
-#			py.write ("--")
-#			py.press ("down")
-#			py.press ("enter")
-#		finally:
-#			py.PAUSE = self.GLOBAL_PAUSE
-#
-#	def old_fillBox (self, fieldName):
-#		py.PAUSE = self.SLOW_PAUSE
-#		print ("PAUSE: ", py.PAUSE)
-#		try:
-#			fieldValue = self.fields [fieldName]
-#			if fieldValue == None:
-#				return
-#
-#			for i in range (5):
-#				print (f"Intento '{i+1}'...", end="") 
-#				Utils.printx (f"Llenando fillBox '{fieldName}' : '{fieldValue}'...")
-#				py.sleep (0.2)
-#				pyperclip_copy (fieldValue)
-#				py.hotkey ("ctrl", "v")
-#				py.sleep (0.2)
-#				py.press ("down")
-#				py.sleep (0.1)
-#
-#				# Check if selection is null
-#				pyperclip_copy ("")
-#				py.hotkey ("ctrl", "a", "c")
-#				py.sleep (0.2)
-#				formValue = pyperclip_paste () 
-#				print (f">>> FORM VALUE IS: '{formValue}'")
-#
-#				if formValue != "" and fieldValue.upper() in formValue.upper():
-#					print (f">>> Copiando {formValue}")
-#					pyperclip_copy (fieldValue)
-#					py.hotkey ("ctrl", "v")
-#					py.sleep (0.2)
-#					py.press ("down")
-#					py.sleep (0.2)
-#				else:
-#					Utils.printx (f"Buscando '{fieldValue}' en '{fieldName}'. \
-#					                Se encontró: '{formValue}'")
-#					py.sleep (0.2)
-#					continue
-#
-#				py.sleep (0.1)
-#				py.press ("enter")
-#				return
-#
-#			# Not found item so select default "--selección--"	
-#			Utils.printx (f">>> Finalizada búsqueda. No encontrado '{fieldValue}'")
-#			self.notFilledFields.append ((fieldName, fieldValue))
-#
-#			self.fields [fieldName] = None
-#			py.hotkey ("ctrl", "a")
-#			py.write ("--")
-#			py.press ("down")
-#			py.press ("enter")
-#		finally:
-#			py.PAUSE = self.GLOBAL_PAUSE
 
 	#------------------------------------------------------------------
 	#-- Fill box iterating, copying, comparing.
