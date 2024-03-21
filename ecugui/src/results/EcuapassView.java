@@ -3,6 +3,9 @@ package results;
 import documento.DocModel;
 import documento.DocRecord;
 import java.awt.Component;
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.JRadioButton;
@@ -126,8 +129,8 @@ public class EcuapassView extends JScrollPane {
 
 	// For idependent combo box
 	public SearchableComboBox createComboBox (String filename) {
-		String[] items = Utils.readDataResourceFromFile (this, this.resourcesDir + filename + ".txt");
-		//String [] items = {filename, "Item2"};
+		String resourcesFile = Paths.get (DocModel.temporalPath, "resources", this.resourcesDir, filename + ".txt").toString ();
+		String[] items = Utils.readDataFromFile (resourcesFile);
 		SearchableComboBox comboBox = new SearchableComboBox (items);
 		return (comboBox);
 	}
@@ -150,11 +153,13 @@ public class EcuapassView extends JScrollPane {
 		if (rootItems != null)
 			for (String rootItem : rootItems) {
 				String itemFilename = rootItem.contains ("derivado") ? "derivado" : childName + "_" + rootItem.toLowerCase ();
-				String[] items = Utils.readDataResourceFromFile (this, this.resourcesDir + itemFilename + ".txt");
+				String resourcesFile = Paths.get (DocModel.temporalPath, "resources", this.resourcesDir, itemFilename + ".txt").toString ();
+				String[] items = Utils.readDataFromFile (resourcesFile);
+				// String[] items = Utils.readDataResourceFromFile (this, this.resourcesDir + itemFilename + ".txt");
 				subItemsMap.put (rootItem, items);
 			}
-
-		String[] items = Utils.readDataResourceFromFile (this,  this.resourcesDir + "derivado.txt");
+		String resourcesFile = Paths.get (DocModel.temporalPath, "resources", this.resourcesDir, "derivado.txt").toString ();
+		String[] items = Utils.readDataFromFile (resourcesFile);
 		SearchableComboBox comboBox = new SearchableComboBox (items, parentComboBox, subItemsMap);
 		return (comboBox);
 	}

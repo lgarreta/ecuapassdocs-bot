@@ -219,9 +219,6 @@ class EcuDoc:
 		prefixName	= filename.split(".")[0]
 		outFilename = f"{prefixName}-{suffixName}.json"
 		fp = open (outFilename, "w") 
-		print ("------------------------------")
-		print (fieldsDict)
-		print ("------------------------------")
 		json.dump (fieldsDict, fp, indent=4)
 		fp.close ()
 		#with open (outFilename, "w") as fp:

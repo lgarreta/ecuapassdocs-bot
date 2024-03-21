@@ -1,5 +1,5 @@
 {
-  "empresa": "NTA",
+  "empresa": "BYZA",
   "url_creador": "URL Creador",
   "url_ecuapass": "URL ECUAPASS",
   "global_pause": "0.05",

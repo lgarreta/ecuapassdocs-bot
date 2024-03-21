@@ -8,7 +8,7 @@ a = Analysis(
     ['ecuapass_server.py'],
     pathex=[],
     binaries=[],
-    datas=[('images/*.png', 'images/'), ('ecuapassdocs/resources/data-cartaportes/*.txt', 'ecuapassdocs/resources/data-cartaportes/'), ('ecuapassdocs/resources/data-manifiestos/*.txt', 'ecuapassdocs/resources/data-manifiestos/'), ('ecuapassdocs/resources/docs/*.png', 'ecuapassdocs/resources/docs/'), ('ecuapassdocs/resources/docs/*.pdf', 'ecuapassdocs/resources/docs/'), ('ecuapassdocs/resources/docs/*.json', 'ecuapassdocs/resources/docs/')],
+    datas=[('images/*.png', 'images/'), ('ecuapassdocs/resources/data_cartaportes/*.txt', 'ecuapassdocs/resources/data_cartaportes/'), ('ecuapassdocs/resources/data_manifiestos/*.txt', 'ecuapassdocs/resources/data_manifiestos/'), ('ecuapassdocs/resources/docs/*.png', 'ecuapassdocs/resources/docs/'), ('ecuapassdocs/resources/docs/*.pdf', 'ecuapassdocs/resources/docs/'), ('ecuapassdocs/resources/docs/*.json', 'ecuapassdocs/resources/docs/')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},

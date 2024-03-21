@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTabbedPane;
@@ -29,7 +28,7 @@ import workers.ServerWorker;
 
 public class MainController extends Controller {
 
-	String appRelease = "0.988";
+	String appRelease = "0.990";
 	DocModel doc;             // Handles invoice data: selected, processed, and no procesed
 	MainView mainView;
 	InputsView inputsView;

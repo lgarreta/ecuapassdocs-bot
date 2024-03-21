@@ -19,12 +19,9 @@ from ecuapassdocs.info.resourceloader import ResourceLoader
 #----------------------------------------------------------------
 #----------------------------------------------------------------
 class BotCodebinDoc:
-	def __init__ (self, docType, inputsParametersFile, 
-	              codebinFieldsFile, runningDir):
+	def __init__ (self, docType, codebinFieldsFile):
 		self.docType              = docType
-		self.inputsParametersFile = inputsParametersFile
 		self.codebinFieldsFile    = codebinFieldsFile
-		self.runningDir           = runningDir
 		self.driver               = None
 
 	def start (self):
@@ -32,21 +29,21 @@ class BotCodebinDoc:
 		codebinFields = json.load (open (self.codebinFieldsFile))
 		pais = codebinFields.pop ("pais")
 		Utils.printx ("-- pais:", pais)
+
 		self.login (pais)
 		frameCartaporte   = self.nuevaCartaporte ()
 		self.fillForm (frameCartaporte, codebinFields)
 
 	def login (self, pais):
 		# Open and click on "Continuar" button
-		Utils.printx ("-- RunningDir:", self.runningDir)
 		driver = webdriver.Firefox ()
 		driver.get ("https://byza.corebd.net")
 		submit_button = driver.find_element(By.XPATH, "//input[@type='submit']")
 		submit_button.click()
 
 		# Open new window with login form, then switch to it
-		window_handles = driver.window_handles
-		winMenu = window_handles [-1]
+		time.sleep (2)
+		winMenu = driver.window_handles [-1]
 		driver.switch_to.window (winMenu)
 
 		# Login Form : fill user / password
@@ -66,11 +63,9 @@ class BotCodebinDoc:
 		self.driver = driver
 		
 	def nuevaCartaporte (self):
-		print ("-- Clicking on 'Carta Porte' link...")
 		iniLink = self.driver.find_element (By.PARTIAL_LINK_TEXT, "Carta Porte")
 		iniLink.click()
 
-		print ("-- Clicking on 'Nuevo' link...")
 		iniLink = self.driver.find_element (By.XPATH, "//a[contains(@href, '1.cpi/nuevo.cpi.php?modo=1')]")
 		iniLink.click()
 

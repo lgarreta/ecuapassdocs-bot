@@ -1,0 +1,51 @@
+1711037327481	geckodriver	INFO	Listening on 127.0.0.1:36125
+1711037328506	mozrunner::runner	INFO	Running command: MOZ_CRASHREPORTER="1" MOZ_CRASHREPORTER_NO_REPORT="1" MOZ_CRASHREPORTER_SHUTDOWN="1" MOZ_NO_REMOTE="1" "/opt/bin/firefox" "--marionette" "-no-remote" "-profile" "/tmp/rust_mozprofilexmQXHK"
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+Gtk-Message: 11:08:49.084: Failed to load module "window-decorations-gtk-module"
+Gtk-Message: 11:08:49.084: Failed to load module "colorreload-gtk-module"
+ATTENTION: default value of option mesa_glthread overridden by environment.
+1711037329550	Marionette	INFO	Marionette enabled
+ATTENTION: default value of option mesa_glthread overridden by environment.
+1711037329785	Marionette	INFO	Listening on port 45555
+Read port: 45555
+1711037330087	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+console.error: ({})
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://byza.corebd.net."
+1711037360963	addons.xpi	ERROR	System addon update list error SyntaxError: XMLHttpRequest.open: 'http://%(server)s/dummy-system-addons.xml' is not a valid URL.
+1711037416605	Marionette	INFO	Stopped listening on port 45555
+1711037418201	geckodriver	INFO	Listening on 127.0.0.1:54111
+1711037418209	mozrunner::runner	INFO	Running command: MOZ_CRASHREPORTER="1" MOZ_CRASHREPORTER_NO_REPORT="1" MOZ_CRASHREPORTER_SHUTDOWN="1" MOZ_NO_REMOTE="1" "/opt/bin/firefox" "--marionette" "-no-remote" "-profile" "/tmp/rust_mozprofilezxHeyZ"
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+Gtk-Message: 11:10:18.609: Failed to load module "window-decorations-gtk-module"
+Gtk-Message: 11:10:18.609: Failed to load module "colorreload-gtk-module"
+ATTENTION: default value of option mesa_glthread overridden by environment.
+1711037419120	Marionette	INFO	Marionette enabled
+ATTENTION: default value of option mesa_glthread overridden by environment.
+1711037419303	Marionette	INFO	Listening on port 44247
+Read port: 44247
+1711037419385	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+console.error: ({})
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://byza.corebd.net."
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://byza.corebd.net."
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://byza.corebd.net."
+1711037423239	Marionette	WARN	Ignoring event 'DOMContentLoaded' because document has an invalid readyState of 'complete'.
+1711037449138	addons.xpi	ERROR	System addon update list error SyntaxError: XMLHttpRequest.open: 'http://%(server)s/dummy-system-addons.xml' is not a valid URL.
+1711037495888	Marionette	INFO	Stopped listening on port 44247
+1711037735637	geckodriver	INFO	Listening on 127.0.0.1:57137
+1711037735645	mozrunner::runner	INFO	Running command: MOZ_CRASHREPORTER="1" MOZ_CRASHREPORTER_NO_REPORT="1" MOZ_CRASHREPORTER_SHUTDOWN="1" MOZ_NO_REMOTE="1" "/opt/bin/firefox" "--marionette" "-no-remote" "-profile" "/tmp/rust_mozprofileezdf85"
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+Gtk-Message: 11:15:35.963: Failed to load module "window-decorations-gtk-module"
+Gtk-Message: 11:15:35.964: Failed to load module "colorreload-gtk-module"
+ATTENTION: default value of option mesa_glthread overridden by environment.
+1711037736374	Marionette	INFO	Marionette enabled
+ATTENTION: default value of option mesa_glthread overridden by environment.
+1711037736566	Marionette	INFO	Listening on port 42533
+Read port: 42533
+1711037736802	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+console.error: ({})
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://byza.corebd.net."
+1711037743294	Marionette	INFO	Stopped listening on port 42533
+JavaScript error: chrome://remote/content/marionette/cert.sys.mjs, line 47: NS_ERROR_NOT_AVAILABLE: Component returned failure code: 0x80040111 (NS_ERROR_NOT_AVAILABLE) [nsICertOverrideService.setDisableAllSecurityChecksAndLetAttackersInterceptMyData]

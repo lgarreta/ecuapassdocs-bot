@@ -11,32 +11,35 @@ from ecuapassdocs.info.ecuapass_utils import Utils
 def main ():
 	args = sys.argv
 
-	ecudocPDFFieldsFile = args [1]   # PDF with Ecudoc fields
+	codebinFieldsFile = args [1]   # PDF with Ecudoc fields
+	mainCodebinBotCartaporte (codebinFieldsFile)
 
-	# Get codebin fields
-	botCodebin          = BotCodebinCartaporte (ecudocPDFFieldsFile)
-	ecudocFields        = botCodebin.getEmbeddedFieldsFromPDF ()
-	codebinFields, pais = botCodebin.createCodebinFields (ecudocFields)
 
-	# Login to CODEBIN and fill form
-	botCodebin.login (pais)
-	frameCartaporte   = botCodebin.nuevaCartaporte ()
-	botCodebin.fillForm (frameCartaporte, codebinFields)
+#	# Get codebin fields
+#	botCodebin          = BotCodebinCartaporte (ecudocPDFFieldsFile)
+#	ecudocFields        = botCodebin.getEmbeddedFieldsFromPDF ()
+#	codebinFields, pais = botCodebin.createCodebinFields (ecudocFields)
+#
+#	# Login to CODEBIN and fill form
+#	botCodebin.login (pais)
+#	frameCartaporte   = botCodebin.nuevaCartaporte ()
+#	botCodebin.fillForm (frameCartaporte, codebinFields)
 
 #----------------------------------------------------------------
 # mainCodebinBotCartaporte
 #----------------------------------------------------------------
-def mainCodebinBotCartaporte (codebinFieldsFile, runningDir):
-	botCodebin = BotCodebinCartaporte (codebinFieldsFile, runningDir)
+def mainCodebinBotCartaporte (codebinFieldsFile ):
+	botCodebin = BotCodebinCartaporte (codebinFieldsFile)
 	botCodebin.start ()
 
 #----------------------------------------------------------------
 # Bot for filling CODEBIN cartaportes from ECUDOCS PDFs
 #----------------------------------------------------------------
 class BotCodebinCartaporte (BotCodebinDoc):
-	def __init__ (self, codebinFieldsFile, runningDir):
-		super().__init__("CARTAPORTE", "cartaporte_input_parameters.json", 
-		                  codebinFieldsFile, runningDir)
+	def __init__ (self, codebinFieldsFile):
+		super().__init__("CARTAPORTE", codebinFieldsFile)
 #-----------------------------------------------------------
 #-----------------------------------------------------------
 #main ()
+if __name__ == "__main__":
+	main()

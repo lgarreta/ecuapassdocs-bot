@@ -102,7 +102,7 @@ class EcuServer:
 		elif (service == "bot_processing"):
 			result = EcuServer.botProcessing (jsonFilepath=data1, runningDir=data2)
 		elif (service == "codebin_processing"):
-			result = EcuServer.codebinProcessing (codebinFieldsFile=data1, runningDir=data2)
+			result = EcuServer.codebinProcessing (codebinFieldsFile=data1)
 		elif (service == "stop"):
 			EcuServer.stop_server ()
 		elif (service == "send_feedback"):
@@ -158,15 +158,15 @@ class EcuServer:
 	#----------------------------------------------------------------
 	#-- Transmit document fields to CODEBIN web app using Selenium
 	#----------------------------------------------------------------
-	def codebinProcessing (codebinFieldsFile, runningDir):
+	def codebinProcessing (codebinFieldsFile):
 		docType = os.path.basename (codebinFieldsFile).split("-")[0]
 
 		if docType.lower() == "cartaporte":
-			mainCodebinBotCartaporte (codebinFieldsFile, runningDir)
+			mainCodebinBotCartaporte (codebinFieldsFile)
 		if docType.lower() == "manifiesto":
-			mainCodebinBotManifiesto (codebinFieldsFile, runningDir)
+			mainCodebinBotManifiesto (codebinFieldsFile)
 		if docType.lower() == "declaracion":
-			mainCodebinBotDeclaracion (codebinFieldsFile, runningDir)
+			mainCodebinBotDeclaracion (codebinFieldsFile)
 	#----------------------------------------------------------------
 	#-- Check if document filename is an image (.png) or a PDF file (.pdf)
 	#----------------------------------------------------------------

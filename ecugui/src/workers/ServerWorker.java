@@ -148,7 +148,7 @@ public class ServerWorker extends SwingWorker {
 				String entryName = entry.getName ();
 
 				if (entryName.startsWith ("resources")) {  // Check if the entry is in the specified resource directory
-					Path destinationPath = Paths.get (docModel.temporalPath, entryName.substring (resourceDirPath.length ()));
+					Path destinationPath = Paths.get (docModel.temporalPath, "resources", entryName.substring (resourceDirPath.length ()));
 					if (entry.isDirectory ())
 						Files.createDirectories (destinationPath); // This is a directory, so create it in the destination
 					else // This is a file, so copy it to the destination
@@ -159,6 +159,7 @@ public class ServerWorker extends SwingWorker {
 			}
 			jar.close ();
 		} catch (IOException | URISyntaxException ex) {
+			System.out.println ("--- ERROR copiando recursos desde JAR");
 			return false;
 		}
 		return true;
@@ -192,7 +193,8 @@ public class ServerWorker extends SwingWorker {
 					);
 			}
 		} catch (URISyntaxException | IOException ex) {
-			ex.printStackTrace ();
+			System.out.println ("--- ERROR copiando recursos desde TEMP");
+		ex.printStackTrace ();
 			return false;
 		}
 		return true;
@@ -203,7 +205,7 @@ public class ServerWorker extends SwingWorker {
 		String OS = System.getProperty ("os.name").toLowerCase ();
 		String serverProgram = null;
 		if (OS.contains ("windows"))
-			serverProgram = "ecuapass_server.exe";
+			serverProgram = "ecuapass_server.py";
 		else
 			serverProgram = "ecuapass_server.py";
 
