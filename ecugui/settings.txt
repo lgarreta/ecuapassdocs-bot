@@ -1,5 +1,5 @@
 {
-  "empresa": "NTA",
+  "empresa": "BYZA",
   "url_creador": "https://ecuapassdocs-test.up.railway.app/",
   "url_ecuapass": "",
   "global_pause": "0.05",

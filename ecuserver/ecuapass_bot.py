@@ -24,7 +24,7 @@ win   = None	 # Global Ecuapass window  object
 class EcuBot:
 	# Load data, check/clear browser page
 	def __init__(self, jsonFilepath, runningDir, docType):
-		Utils.printx (f"Versión0.98. Iniciando ingreso de documento '{jsonFilepath}'")
+		Utils.printx (f"Versión0.981. Iniciando ingreso de documento '{jsonFilepath}'")
 		Utils.printx (f"Directorio actual: ", os.getcwd())
 
 		self.jsonFilepath = jsonFilepath   
@@ -67,7 +67,7 @@ class EcuBot:
 	#--------------------------------------------------------------------
 	# Detects if cursor is over find button
 	#--------------------------------------------------------------------
-	def isOnFindButton (self):
+	def isOnFindButton_usingTextCopyPaste (self):
 		py.press ("X")
 		pyperclip.copy(''); py.hotkey ("ctrl", "a"); py.hotkey ("ctrl","c"); 
 		text   = pyperclip.paste()
@@ -79,21 +79,41 @@ class EcuBot:
 			print ("-- Yes, in find button")
 			return True
 			
+	#-- Detect if is on find button using image icon
+	def isOnFindButton (self):
+		Utils.printx ("Localizando botón de búsqueda...")
+		filePaths = Utils.imagePath ("image-button-FindRUC")
+		for fpath in filePaths:
+			print (">>> Probando: ", os.path.basename (fpath))
+			xy = py.locateCenterOnScreen (fpath, confidence=0.90, grayscale=False)
+			if (xy):
+				print (">>> Detectado")
+				return True
+
 
 	#--------------------------------------------------------------------
 	# fill subject fields taking into account RUC info, if exists.
 	#--------------------------------------------------------------------
 	def fillSubject (self, subjectType, fieldProcedimiento, fieldPais, fieldTipoId, 
 	                 fieldNumeroId, fieldNombre, fieldDireccion, fieldCertificado=None):
-		print ("--", "in fillSubject")
+		procedimiento = self.fields [fieldProcedimiento]
 		for i in range (2):
 			self.fillBox (fieldPais); py.press ("Tab")
 			self.fillBox (fieldTipoId); py.press ("Tab")
 			self.fillText (fieldNumeroId); py.press ("Tab")
+			if self.empresa == "NTA":
+				if procedimiento == "IMPORTACION" and subjectType == "REMITENTE":
+					break                
+				elif procedimiento == "EXPORTACION" and subjectType != "REMITENTE":
+					break                
 			[py.hotkey ("shift", "Tab") for k in range (3) if i < 1]
+			py.sleep (0.5)
 
 		if self.isOnFindButton ():
-			py.press ("space"); py.sleep (1)
+			py.press ("space"); 
+			while self.isOnFindButton ():
+				print ("... in find RUC button ...")
+				py.sleep (0.1)
 		else:
 			if subjectType == "REMITENTE":
 				self.fillText (fieldCertificado); py.press ("Tab")
@@ -334,7 +354,7 @@ class EcuBot:
 	def activateEcuapassDocsWindow (self):
 		return self.activateWindowByTitle ('Ecuapass-Docs')
 
-	#-- Clear previous webpage content
+	#-- Clear previous webpage content clicking on "ClearPage" button
 	def clearWebpageContent (self):
 		Utils.printx ("Localizando botón de borrado...")
 		filePaths = Utils.imagePath ("image-button-ClearPage")

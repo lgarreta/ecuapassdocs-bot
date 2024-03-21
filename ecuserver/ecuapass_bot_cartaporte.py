@@ -64,16 +64,15 @@ class EcuBotCartaporte (EcuBot):
 			# Remitente
 			self.fillSubject ("REMITENTE", "05_TipoProcedimiento", "10_PaisRemitente", 
 			                  "11_TipoIdRemitente", "12_NroIdRemitente", "14_NombreRemitente",
-												"15_DireccionRemitente", "13_NroCertSanitario")
-
+			                  "15_DireccionRemitente", "13_NroCertSanitario")
 			# Destinatario
-			self.fillSubject ("DESTINATARIO", "05_TipoProcedimiento", "16_PaisDestinatario", "17_TipoIdDestinatario",
-			                  "18_NroIdDestinatario", "19_NombreDestinatario", "20_DireccionDestinatario")
-
+			self.fillSubject ("DESTINATARIO", "05_TipoProcedimiento", "16_PaisDestinatario",
+			                  "17_TipoIdDestinatario", "18_NroIdDestinatario", 
+			                  "19_NombreDestinatario", "20_DireccionDestinatario")
 			# Consignatario
-			self.fillSubject ("CONSIGNATARIO", "05_TipoProcedimiento", "21_PaisConsignatario", "22_TipoIdConsignatario",
-			                  "23_NroIdConsignatario", "24_NombreConsignatario", "25_DireccionConsignatario")
-			sys.exit (0)
+			self.fillSubject ("CONSIGNATARIO", "05_TipoProcedimiento", "21_PaisConsignatario", 
+			                  "22_TipoIdConsignatario", "23_NroIdConsignatario", 
+			                  "24_NombreConsignatario", "25_DireccionConsignatario")
 
 			Utils.scrollN (10)
 

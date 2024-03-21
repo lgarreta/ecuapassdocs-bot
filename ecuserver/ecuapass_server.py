@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-VERSION="0.8"
+VERSION="0.82"
 
 import os, sys, time
 import signal
@@ -16,6 +16,9 @@ from ecuapass_doc import EcuDoc, mainDoc
 from ecuapass_bot_cartaporte import mainBotCartaporte
 from ecuapass_bot_manifiesto import mainBotManifiesto
 from ecuapass_bot_declaracion import mainBotDeclaracion
+
+# Codebin Bot
+from codebin_bot_cartaporte import mainCodebinBotCartaporte
 
 from ecuapassdocs.utils.ecuapass_feedback import EcuFeedback
 
@@ -98,6 +101,8 @@ class EcuServer:
 			result = EcuServer.analizeDocuments (workingDir=data1, runningDir=data2)
 		elif (service == "bot_processing"):
 			result = EcuServer.botProcessing (jsonFilepath=data1, runningDir=data2)
+		elif (service == "codebin_processing"):
+			result = EcuServer.codebinProcessing (codebinFieldsFile=data1, runningDir=data2)
 		elif (service == "stop"):
 			EcuServer.stop_server ()
 		elif (service == "send_feedback"):
@@ -150,6 +155,18 @@ class EcuServer:
 		if docType.lower() == "declaracion":
 			mainBotDeclaracion (jsonFilepath, runningDir)
 
+	#----------------------------------------------------------------
+	#-- Transmit document fields to CODEBIN web app using Selenium
+	#----------------------------------------------------------------
+	def codebinProcessing (codebinFieldsFile, runningDir):
+		docType = os.path.basename (codebinFieldsFile).split("-")[0]
+
+		if docType.lower() == "cartaporte":
+			mainCodebinBotCartaporte (codebinFieldsFile, runningDir)
+		if docType.lower() == "manifiesto":
+			mainCodebinBotManifiesto (codebinFieldsFile, runningDir)
+		if docType.lower() == "declaracion":
+			mainCodebinBotDeclaracion (codebinFieldsFile, runningDir)
 	#----------------------------------------------------------------
 	#-- Check if document filename is an image (.png) or a PDF file (.pdf)
 	#----------------------------------------------------------------

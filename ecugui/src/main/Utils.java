@@ -39,8 +39,8 @@ public class Utils {
 		String textDeclaracion = "Declaración de Tránsito Aduanero Internacional ";
 		String textManifiesto = "Manifiesto de Carga Internacional";
 		String textCartaporte = "Carta de Porte Internacional por Carretera";
-		
-		String [] lines = getLinesFromPDF (pdfFilepath);
+
+		String[] lines = getLinesFromPDF (pdfFilepath);
 		for (String line : lines) {
 			if (line.contains (textCartaporte))
 				return "cartaporte";
@@ -53,7 +53,7 @@ public class Utils {
 	}
 
 	public static String[] getLinesFromPDF (String pdfFilepath) {
-		String [] lines = null;
+		String[] lines = null;
 		try {
 			File pdfFile = new File (pdfFilepath); // Replace with the path to your PDF file
 			PDDocument document = PDDocument.load (pdfFile);
@@ -87,7 +87,7 @@ public class Utils {
 			System.out.println ("Total PDF pages  to be converting -> " + numberOfPages);
 
 			int dpi = 200;// use less dpi for to save more space in harddisk. For professional usage you can use more than 300dpi 
-			BufferedImage bImage = pdfRenderer.renderImageWithDPI  (0, dpi, ImageType.RGB);
+			BufferedImage bImage = pdfRenderer.renderImageWithDPI (0, dpi, ImageType.RGB);
 			ImageIO.write (bImage, "jpg", outImgFilepath);
 			document.close ();
 		} catch (IOException ex) {
@@ -129,18 +129,10 @@ public class Utils {
 		return (path);
 	}
 
-	public static String getEcuapassFieldsFile (String docFilepath) {
+	public static String getResultsFile (String docFilepath, String sufixString) {
 		String fileName = new File (docFilepath).getPath ();
 		String docFilename = fileName.substring (0, fileName.lastIndexOf ('.'));
-		String resultsFilename = String.format ("%s-ECUFIELDS.json", docFilename);
-		File resultsFilepath = new File (resultsFilename);
-		return (resultsFilepath.toString ());
-	}
-
-	public static String getCacheFile (String docFilepath) {
-		String fileName = new File (docFilepath).getPath ();
-		String docFilename = fileName.substring (0, fileName.lastIndexOf ('.'));
-		String resultsFilename = String.format ("%s-azure-CACHE.pkl", docFilename);
+		String resultsFilename = String.format ("%s-%s", docFilename, sufixString);
 		File resultsFilepath = new File (resultsFilename);
 		return (resultsFilepath.toString ());
 	}
@@ -151,10 +143,10 @@ public class Utils {
 		return (resourceURL.getPath ());
 	}
 
-	public static String getResourcePath (String runningPath, String resourceName) {
-		Path resourcePath = Paths.get (runningPath, resourceName);
-		return (resourcePath.toString ());
-	}
+//	public static String getResourcePath (String runningPath, String resourceName) {
+//		Path resourcePath = Paths.get (runningPath, resourceName);
+//		return (resourcePath.toString ());
+//	}
 
 	public static String createTempCompressedFileFromText (String text) {
 		File tempFile = null;
@@ -181,6 +173,24 @@ public class Utils {
 
 	// Used to read to fill Ecuapass comboBoxes (e.g paises, ciudades, etc.)
 	public static String[] readDataFromFile (String filename) {
+		List<String> data = new ArrayList<> ();
+		String[] arrData = null;
+		try (BufferedReader reader = new BufferedReader (new FileReader (filename))) {
+			String line;
+			while ((line = (String) reader.readLine ()) != null) {
+				data.add (new String (line.getBytes (), "UTF-8"));
+			}
+			arrData = data.toArray (new String[0]);
+		} catch (IOException e) {
+			e.printStackTrace ();
+		}
+		return arrData;
+	}
+
+	// Used to read to fill Ecuapass comboBoxes (e.g paises, ciudades, etc.)
+	public static String[] readDataResourceFromFile (Object obj, String filename) {
+		String resourcesPath = Utils.getResourcePath (obj, "");
+		filename = resourcesPath + filename;	
 		List<String> data = new ArrayList<> ();
 		String[] arrData = null;
 		try (BufferedReader reader = new BufferedReader (new FileReader (filename))) {
@@ -229,7 +239,6 @@ public class Utils {
 		}
 		return true;
 	}
-	
 
 	public static void openPDF (String pdfFilepath) {
 		try {
@@ -248,7 +257,7 @@ public class Utils {
 		} catch (IOException e) {
 			e.printStackTrace ();
 		}
-	}	
+	}
 
 	public static void main (String[] args) {
 		Utils.convertPDFToImage (new File ("/home/lg/AAA/factura-oxxo2.pdf"));

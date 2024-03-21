@@ -39,6 +39,7 @@ import widgets.TopMessageDialog;
  * show them in both console and view.
  */
 public class ServerWorker extends SwingWorker {
+
 	Controller controller;
 	DocModel docModel;
 	String serverUrl; // Server address and entry point
@@ -57,7 +58,7 @@ public class ServerWorker extends SwingWorker {
 
 // Send message to server to start a process using data
 	public boolean startProcess (String service, String data1, String data2) {
-		System.out.println (">>> Iniciando proceso: " + service + " : " + data1+" : "+data2);
+		System.out.println (">>> Iniciando proceso: " + service + " : " + data1 + " : " + data2);
 		try {
 			// Create URL and open connection
 			URL url = new URL (this.serverUrl);
@@ -92,6 +93,7 @@ public class ServerWorker extends SwingWorker {
 
 	// Copy input files in 'DocModel' to new working dir with new docType name
 	public void copyDocsToWorkingDir (ArrayList<DocRecord> records) {
+		System.out.println (">> Copiando archivos...");
 		docModel.createFolder (docModel.projectsPath);
 		docModel.workingPath = docModel.getWorkingDir (docModel.projectsPath);
 		docModel.createFolder (docModel.workingPath);
@@ -104,7 +106,9 @@ public class ServerWorker extends SwingWorker {
 				Files.copy (docFilepath.toPath (), destFilepath.toPath (), StandardCopyOption.REPLACE_EXISTING);
 
 				// Copy cache document in pickle file
-				File docCacheFilepath = new File (Utils.getCacheFile (record.docFilepath));
+				File docCacheFilepath = new File (Utils.getResultsFile (record.docFilepath, "CACHE.pkl"));
+				System.out.println (">> Copiando archivo cache: " + docCacheFilepath);
+
 				record.docFilepath = destFilepath.toString ();
 				if (docCacheFilepath.exists ()) {
 					destFilepath = new File (docModel.workingPath, docCacheFilepath.getName ());
@@ -113,8 +117,7 @@ public class ServerWorker extends SwingWorker {
 				}
 			}
 		} catch (IOException e) {
-			Logger.getLogger (MainController.class
-				.getName ()).log (Level.SEVERE, null, e);
+			e.printStackTrace ();
 		}
 	}
 
@@ -163,7 +166,7 @@ public class ServerWorker extends SwingWorker {
 
 	public boolean copyResourcesFromPathToTempDir () {
 		try {
-			String resourceDir= "resources/";// Specify the resource directory path within the JAR			
+			String resourceDir = "resources/";// Specify the resource directory path within the JAR			
 			ClassLoader classLoader = this.getClass ().getClassLoader ();// Get a reference to the current class loader			
 			URL resourceUrl = classLoader.getResource (resourceDir);// Get the URL of the resource directory
 			if (resourceUrl == null)
@@ -198,10 +201,10 @@ public class ServerWorker extends SwingWorker {
 	// Create command list according to the OS
 	public void createExecutableCommand () {
 		String OS = System.getProperty ("os.name").toLowerCase ();
-		String serverProgram = null;  
-		if (OS.contains ("windows"))  {
+		String serverProgram = null;
+		if (OS.contains ("windows"))
 			serverProgram = "ecuapass_server.exe";
-		}else
+		else
 			serverProgram = "ecuapass_server.py";
 
 		String command = Paths.get (docModel.runningPath, "ecuserver", serverProgram).toString ();
@@ -215,7 +218,7 @@ public class ServerWorker extends SwingWorker {
 				commandList = new ArrayList<> (Arrays.asList ("python3"));
 		commandList.add (command);
 	}
-	
+
 	@Override
 	protected String doInBackground () throws Exception {
 		System.out.println (">>> Executing server worker...");
@@ -232,7 +235,7 @@ public class ServerWorker extends SwingWorker {
 		String lastLine = "";
 		try {
 			BufferedInputStream bis = new BufferedInputStream (p.getInputStream ());
-			BufferedReader stdout = new BufferedReader (new InputStreamReader (bis,  "UTF-8"));
+			BufferedReader stdout = new BufferedReader (new InputStreamReader (bis, "UTF-8"));
 			String stdoutLine = "";
 			while ((stdoutLine = stdout.readLine ()) != null) {
 				lastLine = stdoutLine;
@@ -260,14 +263,14 @@ public class ServerWorker extends SwingWorker {
 				controller.onProcessDocumentsEndAll ();
 			else if (statusMsg.contains ("SERVER: ALERTA:") || statusMsg.contains ("SERVER: Exception: ALERTA:")) {
 				statusMsg = statusMsg.split ("ALERTA:")[1];
-				TopMessageDialog dialog = new TopMessageDialog (controller.getMainView(), statusMsg);
-				dialog.setVisible (true);				
+				TopMessageDialog dialog = new TopMessageDialog (controller.getMainView (), statusMsg);
+				dialog.setVisible (true);
 			} else if (statusMsg.contains ("Server is running on port")) {
 				String portString = statusMsg.split ("::")[1].trim ();
 				int urlPortNumber = Integer.parseInt (portString);
 				this.serverUrl = this.getServerUrl (urlPortNumber); // Server address and entry point	
 				controller.onServerRunning (urlPortNumber);
-			}else if (statusMsg.contains ("FEEDBACK:")) {  // Server sends feedback
+			} else if (statusMsg.contains ("FEEDBACK:")) {  // Server sends feedback
 				String docFilepath = statusMsg.split ("'")[1];
 				controller.onSendFeedback (docFilepath);
 			}

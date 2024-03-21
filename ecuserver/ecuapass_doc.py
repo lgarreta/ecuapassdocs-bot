@@ -53,9 +53,6 @@ def printx (*args, flush=True, end="\n"):
 # Run Azure analysis for custom document
 #----------------------------------------------------------
 def mainDoc (inputFilepath, runningDir):
-	fieldsJsonFile = None
-	ecuFieldsFile  = None
-	docFieldsFile  = None
 	try:
 		# Load "empresa": reads and checks if "settings.txt" file exists
 		empresaName = getNombreEmpresaFromSettings (runningDir)
@@ -68,15 +65,16 @@ def mainDoc (inputFilepath, runningDir):
 		#EcuFeedback.sendLog (f"LOG_{empresaName}_{filename}")
 
 		# Get from document Ecuapass and document fields
-		ecuFields, docFields  = getDocumentFields (documentType, empresaName, fieldsJsonFile, runningDir)
-		ecuFieldsFile         = EcuDoc.saveFields (ecuFields, filename, "ECUFIELDS")
-		docFieldsFile         = EcuDoc.saveFields (docFields, filename, "DOCFIELDS")
+		ecuF, docF, cbinF = getDocumentFields (documentType, empresaName, fieldsJsonFile, runningDir)
+
+		EcuDoc.saveFields (ecuF, filename, "ECUFIELDS")
+		EcuDoc.saveFields (docF, filename, "DOCFIELDS")
+		EcuDoc.saveFields (cbinF,  filename, "BINFIELDS")
+
 		printx (f"Análisis exitoso del documento: '{inputFilepath}'")
 	except Exception as ex:
 		printx (traceback_format_exc())
 		printx (f"FEEDBACK: '{inputFilepath}'")
-
-	return ecuFieldsFile, docFieldsFile
 
 #-----------------------------------------------------------
 #-----------------------------------------------------------
@@ -92,7 +90,8 @@ def getNombreEmpresaFromSettings (runningDir):
 	return empresaName
 
 #-----------------------------------------------------------
-#-- Get document according to documentType and empresaName
+#-- Get fields (document, ecuapass, codebin) 
+#-- for documentType and empresaName
 #-----------------------------------------------------------
 def getDocumentFields (documentType, empresaName, fieldsJsonFile, runningDir):
 	documento = None
@@ -121,9 +120,7 @@ def getDocumentFields (documentType, empresaName, fieldsJsonFile, runningDir):
 		printx (f"FEEDBACK: '{inputFilepath}'")
 		raise Exception (f"Tipo de documento '{documentType}' desconocido")
 
-	ecuFields = documento.getMainFields ()
-	docFields = documento.getDocFields ()
-	return ecuFields, docFields
+	return (documento.getMainFields (), documento.getDocFields (), documento.getCodebinFields ())
 
 #-----------------------------------------------------------
 #-- Get type of document from filename (e.g CPI-XXX.pdf or CARTAPORTE-XXX.pdf 
@@ -144,6 +141,7 @@ def getDocumentTypeFromFilename (filepath):
 # Run cloud analysis
 #-----------------------------------------------------------
 class EcuDoc:
+	#-- Get document fields from PDF document
 	def processDocument (inputFilepath, documentType, empresaName):
 		try:
 			# CACHE: Check cache document
@@ -172,20 +170,21 @@ class EcuDoc:
 	#-- Load previous result
 	#----------------------------------------------------------------
 	def loadDocumentCache (inputFilepath):
-		print (">>> Buscando resultados previos...")
 		fieldsJsonFile = None
 		try:
 			#filename       = os.path.basename (inputFilepath)
 			filename       = inputFilepath
-			pickleFilename = f"{filename.split ('.')[0]}-{EcuAzure.getCloudName()}-CACHE.pkl"
-			print (">>> Buscando archivo cache : ", pickleFilename)
+			pickleFilename = f"{filename.split ('.')[0]}-CACHE.pkl"
+			printx (">>> Buscando resultados anteriores desde archivo : ", pickleFilename)
 			if os.path.isfile (pickleFilename): 
 				printx ("Cargando campos desde cache del documento...")
 				with open (pickleFilename, 'rb') as inFile:
 					result = pickle_load (inFile)
 				fieldsJsonFile = EcuAzure.saveResults (result, filename)
+			else:
+				printx (f"ERROR cargando documento desde cache: '{filename}'")
 		except:
-			print (f"ERROR cargando documento desde cache: '{filename}'")
+			printx (f"ERROR cargando documento desde cache: '{filename}'")
 			raise
 
 		return (fieldsJsonFile)
@@ -209,18 +208,24 @@ class EcuDoc:
 				fieldsJsonDic  = json.loads (jsonText)
 				json.dump (fieldsJsonDic, open (fieldsJsonPath, "w"), indent=4, sort_keys=True)
 		except Exception as e:
-			Utils.logException (e, "No se pudo leer campos embebidos en el documento PDF.")
+			Utils.printx ("No se pudo leer campos embebidos en el documento PDF.")
 			return None
 
 		return (fieldsJsonPath)
 
 
 	#-- Save fields dict in JSON 
-	def saveFields (fieldsDict, filename, suffixName):
+	def saveFields (fieldsDict, filename, suffixName, sort=False):
 		prefixName	= filename.split(".")[0]
 		outFilename = f"{prefixName}-{suffixName}.json"
-		with open (outFilename, "w") as fp:
-			json.dump (fieldsDict, fp, indent=4, default=str, sort_keys=True)
+		fp = open (outFilename, "w") 
+		print ("------------------------------")
+		print (fieldsDict)
+		print ("------------------------------")
+		json.dump (fieldsDict, fp, indent=4)
+		fp.close ()
+		#with open (outFilename, "w") as fp:
+		#	json.dump (fieldsDict, fp, indent=4, default=str, sort_keys=False)
 
 		return outFilename
 
@@ -305,7 +310,7 @@ class EcuAzure:
 		rootName = docFilepath.split ('.')[0]
 
 		# Save results as Pickle 
-		outPickleFile = f"{rootName}-{EcuAzure.getCloudName()}-CACHE" ".pkl"
+		outPickleFile = f"{rootName}-CACHE.pkl"
 		with open(outPickleFile, 'wb') as outFile:
 			pickle_dump (result, outFile)
 
@@ -398,51 +403,6 @@ class EcuAzure:
 			resultsDict ["documents"][0]["fields"] = fields
 
 		return (resultsDict ["documents"][0])
-
-#	#--------------------------------------------------------------------
-#	# Deprecated: Non needed.Get document with lines within fields regions
-#	#--------------------------------------------------------------------
-#	def getDocumentLinesRegions (resultDict):
-#		lines  = resultDict ["pages"][0]["lines"]
-#		fields = resultDict ["documents"][0]["fields"]
-#
-#		for key in fields:
-#			#print (">>> Key:", key)
-#			field        = fields [key]
-#			fieldBox     = []
-#			bounding_regions  = field ["bounding_regions"]
-#			#print (">>> bounding_regions: ", bounding_regions)
-#			if len (bounding_regions) > 0:
-#				polygon = bounding_regions [0]["polygon"]
-#				for i in range (len(polygon)):
-#					fieldBox.append (polygon [i]["x"])
-#					fieldBox.append (polygon [i]["y"])
-#
-#			fields [key]["box"] = fieldBox
-#
-##			for line in lines:
-#				lineContent = line ["content"]
-#				if isContained (line, field):
-#
-#		return fields
-
-
-#		for line in lines:
-#			lineContent = line ["content"]
-#			#print (">", lineContent)
-#			for key in fields:
-#				field = fields [key]
-#				fieldContent = field ["content"]
-#				#print ("\t>", fieldContent)
-#
-#				if isContained (line, field):
-#					newlineContent = fieldContent.replace (lineContent+" ", lineContent+"\n")
-#					fields [key] ["content"] = newlineContent
-#					break
-#
-#			resultsDict ["documents"][0]["fields"] = fields
-#
-#		return (resultsDict ["documents"][0])
 
 #--------------------------------------------------------------------
 # Call main 

@@ -2,16 +2,12 @@ package main;
 
 import documento.DocRecord;
 import java.awt.Component;
-import java.awt.Desktop;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.net.URI;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -38,14 +34,15 @@ public class InputsView extends javax.swing.JPanel {
     fileChooser = new javax.swing.JFileChooser();
     controlsPanel = new widgets.InputsControlPanel();
     jPanel1 = new javax.swing.JPanel();
-    buttonOpenEcuapassdocs = new javax.swing.JButton();
-    buttonProcessSelection = new javax.swing.JButton();
-    buttonOpenEcuapass = new javax.swing.JButton();
+    openEcuapassdocsButton = new javax.swing.JButton();
+    processDocumentButton = new javax.swing.JButton();
+    openEcuapassButton = new javax.swing.JButton();
     filesTable = new main.FileSelectionTable();
     imageView = new widgets.ImageViewLens();
 
     setLayout(new java.awt.BorderLayout());
 
+    filesPanel.setPreferredSize(new java.awt.Dimension(600, 800));
     filesPanel.setLayout(new javax.swing.BoxLayout(filesPanel, javax.swing.BoxLayout.Y_AXIS));
 
     selectionPanel.setPreferredSize(new java.awt.Dimension(580, 700));
@@ -66,29 +63,32 @@ public class InputsView extends javax.swing.JPanel {
     jPanel1.setBackground(new java.awt.Color(204, 255, 204));
     jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Un sólo documento:"));
 
-    buttonOpenEcuapassdocs.setText("<html>Crear<br>Documentos</html>");
-    buttonOpenEcuapassdocs.addActionListener(new java.awt.event.ActionListener() {
+    openEcuapassdocsButton.setBackground(java.awt.Color.yellow);
+    openEcuapassdocsButton.setText("<html>Crear<br>Documento</html>");
+    openEcuapassdocsButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
-        buttonOpenEcuapassdocsActionPerformed(evt);
+        openEcuapassdocsButtonActionPerformed(evt);
       }
     });
-    jPanel1.add(buttonOpenEcuapassdocs);
+    jPanel1.add(openEcuapassdocsButton);
 
-    buttonProcessSelection.setText("<html>  Procesar <br>  Selección  </html>");
-    buttonProcessSelection.addActionListener(new java.awt.event.ActionListener() {
+    processDocumentButton.setBackground(new java.awt.Color(186, 255, 255));
+    processDocumentButton.setText("<html>  Procesar <br>  Documento  </html>");
+    processDocumentButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
-        buttonProcessSelectionActionPerformed(evt);
+        processDocumentButtonActionPerformed(evt);
       }
     });
-    jPanel1.add(buttonProcessSelection);
+    jPanel1.add(processDocumentButton);
 
-    buttonOpenEcuapass.setText("<html> Ingresar <br> ECUAPASS </html>");
-    buttonOpenEcuapass.addActionListener(new java.awt.event.ActionListener() {
+    openEcuapassButton.setBackground(new java.awt.Color(255, 222, 203));
+    openEcuapassButton.setText("<html> Ingresar <br> ECUAPASS </html>");
+    openEcuapassButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
-        buttonOpenEcuapassActionPerformed(evt);
+        openEcuapassButtonActionPerformed(evt);
       }
     });
-    jPanel1.add(buttonOpenEcuapass);
+    jPanel1.add(openEcuapassButton);
 
     selectionPanel.add(jPanel1, java.awt.BorderLayout.PAGE_START);
 
@@ -96,10 +96,13 @@ public class InputsView extends javax.swing.JPanel {
     filesPanel.add(filesTable);
 
     add(filesPanel, java.awt.BorderLayout.WEST);
+
+    imageView.setBackground(java.awt.Color.orange);
+    imageView.setMaximumSize(new java.awt.Dimension(600, 800));
     add(imageView, java.awt.BorderLayout.CENTER);
   }// </editor-fold>//GEN-END:initComponents
 
-  private void buttonOpenEcuapassdocsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonOpenEcuapassdocsActionPerformed
+  private void openEcuapassdocsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openEcuapassdocsButtonActionPerformed
 		// TODO add your handling code here
 		controller.openCreadorDocumentosEcuapass ();
 		/*
@@ -119,9 +122,9 @@ public class InputsView extends javax.swing.JPanel {
 			e.printStackTrace ();
 		}
 		*/
-  }//GEN-LAST:event_buttonOpenEcuapassdocsActionPerformed
+  }//GEN-LAST:event_openEcuapassdocsButtonActionPerformed
 
-  private void buttonProcessSelectionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonProcessSelectionActionPerformed
+  private void processDocumentButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_processDocumentButtonActionPerformed
 		// TODO add your handling code here:
 		controller.onReinitialize ();		
 		// Send filechooser file to selected files in table
@@ -132,22 +135,22 @@ public class InputsView extends javax.swing.JPanel {
 			Logger.getLogger (InputsControlPanel.class.getName ()).log (Level.SEVERE, null, ex);
 		}
 
-  }//GEN-LAST:event_buttonProcessSelectionActionPerformed
+  }//GEN-LAST:event_processDocumentButtonActionPerformed
 
-  private void buttonOpenEcuapassActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonOpenEcuapassActionPerformed
+  private void openEcuapassButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openEcuapassButtonActionPerformed
 		// TODO add your handling code here:
-  }//GEN-LAST:event_buttonOpenEcuapassActionPerformed
+  }//GEN-LAST:event_openEcuapassButtonActionPerformed
 
   // Variables declaration - do not modify//GEN-BEGIN:variables
-  private javax.swing.JButton buttonOpenEcuapass;
-  private javax.swing.JButton buttonOpenEcuapassdocs;
-  private javax.swing.JButton buttonProcessSelection;
   private widgets.InputsControlPanel controlsPanel;
   private javax.swing.JFileChooser fileChooser;
   private javax.swing.JPanel filesPanel;
   private main.FileSelectionTable filesTable;
   private widgets.ImageViewLens imageView;
   private javax.swing.JPanel jPanel1;
+  private javax.swing.JButton openEcuapassButton;
+  private javax.swing.JButton openEcuapassdocsButton;
+  private javax.swing.JButton processDocumentButton;
   private javax.swing.JPanel selectionPanel;
   // End of variables declaration//GEN-END:variables
 

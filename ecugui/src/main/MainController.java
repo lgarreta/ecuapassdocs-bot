@@ -25,12 +25,11 @@ import javax.swing.UIManager;
 import org.json.simple.parser.ParseException;
 import results.ResultsController;
 import widgets.ProgressDialog;
-import widgets.WorkingCountryPanel;
 import workers.ServerWorker;
 
 public class MainController extends Controller {
 
-	String appRelease = "0.987";
+	String appRelease = "0.988";
 	DocModel doc;             // Handles invoice data: selected, processed, and no procesed
 	MainView mainView;
 	InputsView inputsView;
@@ -51,6 +50,7 @@ public class MainController extends Controller {
 			serverWorker = new ServerWorker (this, doc);
 			initializeComponents ();
 		} catch (Exception ex) {
+			ex.printStackTrace ();
 			Logger.getLogger (MainController.class.getName ()).log (Level.SEVERE, null, ex);
 		}
 		out ("Ecuapass-docs  " + appRelease);
@@ -159,7 +159,7 @@ public class MainController extends Controller {
 	public void onEndProcessing (String docFilepath, String msgStatus) {
 		try {
 			if (msgStatus.contains ("EXITO")) {
-				String jsonFilepath = Utils.getEcuapassFieldsFile (docFilepath);
+				String jsonFilepath = Utils.getResultsFile (docFilepath, "ECUFIELDS.json");
 				String docType = new File (docFilepath).getName ().split ("-")[0];
 				DocRecord record = new DocRecord (docType, docFilepath, jsonFilepath);
 				doc.addProcessedRecord (record);
