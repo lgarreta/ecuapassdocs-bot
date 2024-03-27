@@ -9,6 +9,8 @@ public class SettingsDialog extends javax.swing.JDialog {
     settingsPanel = new documento.SettingsPanel();
 
     setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+
+    settingsPanel.setToolTipText("");
     getContentPane().add(settingsPanel, java.awt.BorderLayout.CENTER);
 
     pack();
@@ -66,39 +68,50 @@ public class SettingsDialog extends javax.swing.JDialog {
 
 	SettingsController controller;
 
-	/**
-	 * Creates new form SettingsConfigDialog
-	 */
 	public SettingsDialog (java.awt.Frame parent, boolean modal) {
 		super (parent, modal);
 		initComponents ();
+
+		settingsPanel.getCompanyField ().setText (DocModel.companyName);
+		settingsPanel.getEcuapassdocsField ().setText (DocModel.ecuapassdocsURL);
+		settingsPanel.getCodebiniField ().setText (DocModel.codebiniURL);
+		settingsPanel.getEcuapassField ().setText (DocModel.ecuapassURL);
 	}
 
 	public void setController (SettingsController controller) {
 		this.controller = controller;
 		this.settingsPanel.setController (controller);
 	}
-	
-	public String getCompanyName () {
-		return this.settingsPanel.getEmpresaField().getText ();
+
+	public String getNombreEmpresa () {
+		return this.settingsPanel.getCompanyField ().getText ();
 	}
-	public String getDocsCreatorURL () {
-		return this.settingsPanel.getCreadorField().getText ();
+
+	public String getEcuapassdocsURL () {
+		return this.settingsPanel.getEcuapassdocsField ().getText ();
 	}
+
+	public String getCodebiniURL () {
+		return this.settingsPanel.getCodebiniField ().getText ();
+	}
+
 	public String getEcuapassURL () {
-		return this.settingsPanel.getEcuapassField().getText ();
-	}
-	
-	public void setCreadorField (String creadorField) {
-		this.settingsPanel.setCreadorField (creadorField);
+		return this.settingsPanel.getEcuapassField ().getText ();
 	}
 
-	public void setEcuapassField (String ecuapassField) {
-		this.settingsPanel.setEcuapassField (ecuapassField);
+	public void setCompanyName (String empresaField) {
+		this.settingsPanel.getCompanyField ().setText (empresaField);
 	}
 
-	public void setEmpresaField (String empresaField) {
-		this.settingsPanel.setEmpresaField (empresaField);
+	public void setEcuapassdocsURL (String ecuapassdocsURL) {
+		this.settingsPanel.getEcuapassdocsField ().setText (ecuapassdocsURL);
 	}
 
+	public void setCodebiniURL (String codebiniURL) {
+		this.settingsPanel.getCodebiniField ().setText (codebiniURL);
+	}
+
+	public void setEcuapassURL (String ecuapassField) {
+		this.settingsPanel.getEcuapassField ().setText (ecuapassField);
+	}
 }

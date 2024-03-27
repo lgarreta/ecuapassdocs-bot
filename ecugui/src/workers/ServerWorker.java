@@ -194,7 +194,7 @@ public class ServerWorker extends SwingWorker {
 			}
 		} catch (URISyntaxException | IOException ex) {
 			System.out.println ("--- ERROR copiando recursos desde TEMP");
-		ex.printStackTrace ();
+			ex.printStackTrace ();
 			return false;
 		}
 		return true;
@@ -205,11 +205,12 @@ public class ServerWorker extends SwingWorker {
 		String OS = System.getProperty ("os.name").toLowerCase ();
 		String serverProgram = null;
 		if (OS.contains ("windows"))
-			serverProgram = "ecuapass_server.py";
+			serverProgram = Paths.get ("ecuserver", "ecuapass_server.py").toString ();
+			//serverProgram = Paths.get ("ecuapass_server", "ecuapass_server.exe").toString ();
 		else
-			serverProgram = "ecuapass_server.py";
+			serverProgram = Paths.get ("ecuserver", "ecuapass_server.py").toString ();
 
-		String command = Paths.get (docModel.runningPath, "ecuserver", serverProgram).toString ();
+		String command = Paths.get (docModel.runningPath, serverProgram).toString ();
 
 		// EXE don't need interpret
 		commandList = new ArrayList<> ();
@@ -261,9 +262,7 @@ public class ServerWorker extends SwingWorker {
 			if (statusMsg.contains ("Análisis exitoso del documento")) {
 				String docFilename = statusMsg.split ("'")[1].trim ();
 				controller.onEndProcessing (docFilename, "EXITO");
-			} else if (statusMsg.contains ("Análisis exitoso de todos"))
-				controller.onProcessDocumentsEndAll ();
-			else if (statusMsg.contains ("SERVER: ALERTA:") || statusMsg.contains ("SERVER: Exception: ALERTA:")) {
+			} else if (statusMsg.contains ("SERVER: ALERTA:") || statusMsg.contains ("SERVER: Exception: ALERTA:")) {
 				statusMsg = statusMsg.split ("ALERTA:")[1];
 				TopMessageDialog dialog = new TopMessageDialog (controller.getMainView (), statusMsg);
 				dialog.setVisible (true);

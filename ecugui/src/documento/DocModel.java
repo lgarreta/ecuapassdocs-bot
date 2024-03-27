@@ -22,7 +22,11 @@ public class DocModel {
 	public static String temporalPath; // Dir for resources 
 	public static String resourcesPath;
 	public static String companyName; // Name of the company for selecting document cloud models
-	public static String companiesString; ; // Piped companies with document cloud models
+	public static String companiesString;
+	; // Piped companies with document cloud models
+	public static String ecuapassdocsURL = "https://ecuapassdocs-test.up.railway.app/";
+	public static String codebiniURL = "https://byza.corebd.net/";
+	public static String ecuapassURL = "https://ecuapass.aduana.gob.ec/";
 
 	public DocModel () {
 		selectedRecords = new ArrayList<> ();

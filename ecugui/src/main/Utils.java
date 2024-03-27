@@ -74,7 +74,6 @@ public class Utils {
 		File tmpDir = new File (System.getProperty ("java.io.tmpdir"));
 		File outImgFilepath = new File (tmpDir, pdfFilepath.getName ().replace (".pdf", ".jpg"));
 		if (outImgFilepath.exists ()) {
-			System.out.println (">>> PDF: loading  image cache...");
 			return (outImgFilepath);
 		}
 		//else:

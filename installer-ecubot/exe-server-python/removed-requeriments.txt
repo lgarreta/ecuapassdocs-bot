@@ -1,0 +1,5 @@
+matplotlib-inline 
+colorama 
+isodate 
+jedi 
+Jinja2 

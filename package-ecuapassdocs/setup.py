@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='ecuapassdocs',  # Package name
-    version='0.60',  # Package version
+    version='0.63',  # Package version
     url="https://github.com/lgarreta/ecuapassdocs",
     author='Luis Garreta',
     author_email='lgarreta@gmail.com',
@@ -20,5 +20,6 @@ setup(
 		"reportlab==4.0.8",
 		"Pillow==10.1.0"
 	], 
-	logs = {"0.60" : "Changed resource names from 'data-XXX' to data_XXX'"},
+	logs = {"0.63" : "Added creation of CODEBIN fields",
+			"0.60" : "Changed resource names from 'data-XXX' to data_XXX'"},
 )

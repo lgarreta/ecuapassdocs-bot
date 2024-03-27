@@ -1,7 +1,8 @@
 {
   "empresa": "BYZA",
-  "url_creador": "https://ecuapassdocs-test.up.railway.app/",
-  "url_ecuapass": "",
+  "ecuapassdocs_url": "https://ecuapassdocs-test.up.railway.app/",
+  "codebini_url": "https://byza.corebd.net/",
+  "ecuapass_url": "https://ecuapass.aduana.gob.ec/",
   "global_pause": "0.05",
   "slow_pause": "0.1"
 }

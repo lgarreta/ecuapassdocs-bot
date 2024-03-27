@@ -53,7 +53,7 @@ class EcuBot:
 	def initEcuapassWindow (self):
 		Utils.printx ("Iniciando ventana de ECUAPASS...")
 		
-		self.win    = self.activateEcuapassWindow ()
+		self.win = self.activateEcuapassWindow ()
 		self.maximizeWindow (self.win)
 		self.scrollWindowToBeginning ()
 		self.detectEcuapassDocumentWindow (self.docType)
@@ -343,7 +343,7 @@ class EcuBot:
 		Utils.printx (f"Activando ventana '{titleString}'...")
 		
 		if ecuWin.isMinimized:
-			ecuWin.restore (); py.sleep (SLEEP)
+			ecuWin.activate (); py.sleep (SLEEP)
 
 		return (ecuWin)
 

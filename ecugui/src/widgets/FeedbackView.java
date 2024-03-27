@@ -19,8 +19,10 @@ public class FeedbackView extends javax.swing.JPanel {
 
 	public void setController (Controller controller, SettingsController settings) {
 		this.controller = controller;
-		settingsPanel.setEmpresaField (settings.getValue ("empresa"));
-		settingsPanel.setCreadorField (settings.getValue ("url_creador"));
+		settingsPanel.getCompanyField ().setText (settings.getValue ("empresa"));
+		settingsPanel.getEcuapassdocsField ().setText (settings.getValue ("ecuapassdocs_url"));
+		settingsPanel.getCodebiniField ().setText (settings.getValue ("codebini_url"));
+		settingsPanel.getEcuapassField ().setText (settings.getValue ("ecuapass_url"));
 	}
 
 	public void println (String s) {

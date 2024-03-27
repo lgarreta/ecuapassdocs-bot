@@ -1,1 +1,0 @@
-/home/lg/BIO/iaprojects/ecuapassdocs/ecuapassdocs-bot/ecuserver/codebin_bot_base.py

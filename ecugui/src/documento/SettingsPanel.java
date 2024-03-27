@@ -31,42 +31,50 @@ public class SettingsPanel extends javax.swing.JPanel {
   // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
   private void initComponents() {
 
-    jPanel1 = new javax.swing.JPanel();
-    empresaLabel = new javax.swing.JLabel();
-    empresaField = new javax.swing.JTextField();
-    creadorLable = new javax.swing.JLabel();
-    creadorField = new javax.swing.JTextField();
+    ConfigurationPanel = new javax.swing.JPanel();
+    companyLabel = new javax.swing.JLabel();
+    companyField = new javax.swing.JTextField();
+    ecuapassdocsLabel = new javax.swing.JLabel();
+    ecuapassdocsField = new javax.swing.JTextField();
+    codebiniLabel = new javax.swing.JLabel();
+    codebiniField = new javax.swing.JTextField();
     ecuapassLabel = new javax.swing.JLabel();
     ecuapassField = new javax.swing.JTextField();
-    jPanel2 = new javax.swing.JPanel();
+    panelOptions = new javax.swing.JPanel();
     saveButton = new javax.swing.JButton();
     cancelButton = new javax.swing.JButton();
 
     setLayout(new java.awt.BorderLayout());
 
-    jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Configuración"));
-    jPanel1.setPreferredSize(new java.awt.Dimension(700, 116));
-    jPanel1.setLayout(new java.awt.GridLayout(3, 2));
+    ConfigurationPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Configuración"));
+    ConfigurationPanel.setPreferredSize(new java.awt.Dimension(700, 116));
+    ConfigurationPanel.setLayout(new java.awt.GridLayout(4, 2));
 
-    empresaLabel.setText("Empresa:");
-    jPanel1.add(empresaLabel);
+    companyLabel.setText("Empresa:");
+    ConfigurationPanel.add(companyLabel);
 
-    empresaField.setText("Empresa");
-    jPanel1.add(empresaField);
+    companyField.setText("Empresa");
+    ConfigurationPanel.add(companyField);
 
-    creadorLable.setText("URL Creador Documentos:");
-    jPanel1.add(creadorLable);
+    ecuapassdocsLabel.setText("URL EcuapassDocs");
+    ConfigurationPanel.add(ecuapassdocsLabel);
 
-    creadorField.setText("URL Creador");
-    jPanel1.add(creadorField);
+    ecuapassdocsField.setText("URL EcuapassDocs");
+    ConfigurationPanel.add(ecuapassdocsField);
+
+    codebiniLabel.setText("URL Codebini");
+    ConfigurationPanel.add(codebiniLabel);
+
+    codebiniField.setText("URL Codebini");
+    ConfigurationPanel.add(codebiniField);
 
     ecuapassLabel.setText("URL ECUAPASS:");
-    jPanel1.add(ecuapassLabel);
+    ConfigurationPanel.add(ecuapassLabel);
 
     ecuapassField.setText("URL ECUAPASS");
-    jPanel1.add(ecuapassField);
+    ConfigurationPanel.add(ecuapassField);
 
-    add(jPanel1, java.awt.BorderLayout.CENTER);
+    add(ConfigurationPanel, java.awt.BorderLayout.CENTER);
 
     saveButton.setText("Guardar");
     saveButton.addActionListener(new java.awt.event.ActionListener() {
@@ -74,7 +82,7 @@ public class SettingsPanel extends javax.swing.JPanel {
         saveButtonActionPerformed(evt);
       }
     });
-    jPanel2.add(saveButton);
+    panelOptions.add(saveButton);
 
     cancelButton.setText("Cancelar");
     cancelButton.addActionListener(new java.awt.event.ActionListener() {
@@ -82,9 +90,9 @@ public class SettingsPanel extends javax.swing.JPanel {
         cancelButtonActionPerformed(evt);
       }
     });
-    jPanel2.add(cancelButton);
+    panelOptions.add(cancelButton);
 
-    add(jPanel2, java.awt.BorderLayout.SOUTH);
+    add(panelOptions, java.awt.BorderLayout.SOUTH);
   }// </editor-fold>//GEN-END:initComponents
 
   private void saveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveButtonActionPerformed
@@ -96,43 +104,33 @@ public class SettingsPanel extends javax.swing.JPanel {
 		System.exit (0);
   }//GEN-LAST:event_cancelButtonActionPerformed
 
-
   // Variables declaration - do not modify//GEN-BEGIN:variables
+  private javax.swing.JPanel ConfigurationPanel;
   private javax.swing.JButton cancelButton;
-  private javax.swing.JTextField creadorField;
-  private javax.swing.JLabel creadorLable;
+  private javax.swing.JTextField codebiniField;
+  private javax.swing.JLabel codebiniLabel;
+  private javax.swing.JTextField companyField;
+  private javax.swing.JLabel companyLabel;
   private javax.swing.JTextField ecuapassField;
   private javax.swing.JLabel ecuapassLabel;
-  private javax.swing.JTextField empresaField;
-  private javax.swing.JLabel empresaLabel;
-  private javax.swing.JPanel jPanel1;
-  private javax.swing.JPanel jPanel2;
+  private javax.swing.JTextField ecuapassdocsField;
+  private javax.swing.JLabel ecuapassdocsLabel;
+  private javax.swing.JPanel panelOptions;
   private javax.swing.JButton saveButton;
   // End of variables declaration//GEN-END:variables
+		
 
-	public JTextField getCreadorField () {
-		return creadorField;
+	public JTextField getCompanyField () {
+		return companyField;
+	}	
+	public JTextField getEcuapassdocsField () {
+		return ecuapassdocsField;
 	}
-
+	public javax.swing.JTextField getCodebiniField () {
+		return codebiniField;
+	}
 	public JTextField getEcuapassField () {
 		return ecuapassField;
-	}
-
-	public JTextField getEmpresaField () {
-		return empresaField;
-	}
-
-
-	public void setCreadorField (String creadorField) {
-		this.creadorField.setText (creadorField);
-	}
-
-	public void setEcuapassField (String ecuapassField) {
-		this.ecuapassField.setText (ecuapassField);
-	}
-
-	public void setEmpresaField (String empresaField) {
-		this.empresaField.setText (empresaField);
 	}
 
 }

@@ -28,7 +28,7 @@ import workers.ServerWorker;
 
 public class MainController extends Controller {
 
-	String appRelease = "0.990";
+	String appRelease = "0.991";
 	DocModel doc;             // Handles invoice data: selected, processed, and no procesed
 	MainView mainView;
 	InputsView inputsView;
@@ -39,7 +39,7 @@ public class MainController extends Controller {
 	ResultsController resultsController;
 	ServerWorker serverWorker;          // Client for sending messages to python server
 	ProgressDialog progressDialog;     // Dialog showed when document processing starts
-	
+
 	SettingsController settingsController; // Initial configuration parameters
 
 	public MainController () {
@@ -65,18 +65,16 @@ public class MainController extends Controller {
 		mainView = new MainView ();
 		mainView.setController (this);
 		mainView.setVisible (true);
-		
+
 		// Inital configuration dialog
 		settingsController = new SettingsController (mainView, doc.companiesString, doc.runningPath);
 		doc.companyName = settingsController.initCurrentWorkingCompany ();
-		
 
 		inputsView = new InputsView ();
 		inputsView.setController (this);
 
 		feedbackView = new FeedbackView ();
 		feedbackView.setController (this, settingsController);
-
 
 		tabsPanel = mainView.createTabs ();
 		tabsPanel.addTab ("Entradas:", inputsView);
@@ -176,12 +174,6 @@ public class MainController extends Controller {
 		}
 	}
 
-	// Worker notification for adding processed file to 'resultsController' 
-	@Override
-	public void onProcessDocumentsEndAll () {
-		out ("Procesados con éxito todos los documentos.");
-	}
-
 	// Stop cartaporte server if it was opened
 	@Override
 	public void onWindowClossing () {
@@ -275,24 +267,22 @@ public class MainController extends Controller {
 			ex.printStackTrace ();
 		}
 	}
-	
-  public void openCreadorDocumentosEcuapass () {             
-		String url = this.settingsController.getValue ("url_creador");
-		try {
-			// Check if the Desktop API is supported (available on desktop environments)
-			if (Desktop.isDesktopSupported ()) {
-				// Get the desktop object
-				Desktop desktop = Desktop.getDesktop ();
 
-				// Open the specified URL in the default browser
-				desktop.browse (new URI (url));
-			} else
-				System.out.println ("Desktop API is not supported on this platform.");
-		} catch (Exception e) {
-			e.printStackTrace ();
-		}
-  }                                                      
-	
+	public void openCreadorDocumentosEcuapass () {
+		String url = this.settingsController.getValue ("ecuapassdocs_url");
+		serverWorker.startProcess ("open_ecuapassdocs_URL", url, null);
+
+//		String url = this.settingsController.getValue ("url_creador");
+//		try {
+//			if (Desktop.isDesktopSupported ()) {
+//				Desktop desktop = Desktop.getDesktop ();
+//				desktop.browse (new URI (url));
+//			} else
+//				System.out.println ("Desktop API is not supported on this platform.");
+//		} catch (Exception e) {
+//			e.printStackTrace ();
+//		}
+	}
 
 	public static void main (String args[]) {
 

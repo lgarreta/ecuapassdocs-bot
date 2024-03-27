@@ -143,29 +143,47 @@ def getDocumentTypeFromFilename (filepath):
 class EcuDoc:
 	#-- Get document fields from PDF document
 	def processDocument (inputFilepath, documentType, empresaName):
+		outputFile = None
 		try:
 			# CACHE: Check cache document
 			fieldsJsonFile = EcuDoc.loadDocumentCache (inputFilepath)
 			if fieldsJsonFile:
-				return fieldsJsonFile
+				outputFile = fieldsJsonFile
 			else: 
 				# EMBEDDED: Check embedded fields
 				fieldsJsonFile = EcuDoc.getEmbeddedFieldsFromPDF (inputFilepath)
 				if fieldsJsonFile:
-					return fieldsJsonFile
+					outputFile = fieldsJsonFile
 				else:
 					# CLOUD: Analyzing the document using the cloud
 					fieldsJsonFile = EcuAzure.analyzeDocument (inputFilepath, documentType, empresaName)
 					if fieldsJsonFile:
-						return fieldsJsonFile
+						outputFile = fieldsJsonFile
 					else:
 						printx ("Error: No se encontró ni pudo procesar el documento")
 						return None
 
+			#fieldsJsonFile = EcuDoc.cleanNewlines (outputFile)
+			return fieldsJsonFile
 		except Exception as ex:
 			printx (f"ERROR: iniciando proceso de documento'") 
 			raise
 
+	#----------------------------------------------------------------
+	# Change Windows newlines (\r\n( to linux newlines (\n)
+	#----------------------------------------------------------------
+	def cleanNewlines (jsonFilename):
+		fields = json.load (open (jsonFilename))
+		print (fields)
+		for key in fields.keys ():
+			content = fields [key]["content"]
+			if content:
+				fields [key]["content"] = content.replace ("\r\n", "\n")
+
+		json.dump (fields, open (jsonFilename, "w"), indent=4)
+		return jsonFilename
+			
+		
 	#----------------------------------------------------------------
 	#-- Load previous result
 	#----------------------------------------------------------------

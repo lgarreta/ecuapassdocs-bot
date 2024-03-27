@@ -20,10 +20,6 @@ import org.json.simple.parser.ParseException;
 
 public class SettingsController {
 
-	String company;
-	String creatorURL;
-	String ecuapassURL;
-
 	Component parent;
 	SettingsDialog dialog;
 	String companiesString;
@@ -42,35 +38,12 @@ public class SettingsController {
 		System.out.println (">>> Settings file: " + settingsFile);
 
 		try {
-			if (settingsFile.exists ()) {// Load company name
+			if (settingsFile.exists ())// Load nombreEmpresa name
 				companyName = this.getValue ("empresa");
-				
-			}else { // Request company name
-				/*
-				 * JFrame settingsFrame = new JFrame ("Configuración Inicial");
-				 * settingsFrame.setContentPane (new SettingsPanel ());
-				 * settingsFrame.setVisible (true); settingsFrame.setSize (700, 150);
-				 */
+			else { // Request nombreEmpresa name
 				dialog = new SettingsDialog ((JFrame) this.parent, true);
 				dialog.setController (this);
 				dialog.setVisible (true);
-				/*
-				 * JTextField textField = new JTextField (); Object[] message = {"Nombre
-				 * de la empresa:", textField}; Object[] options = {"Aceptar",
-				 * "Cancelar"}; /*while (true) { JFrame settingsFrame = new JFrame
-				 * ("Configuración Inicial"); settingsFrame.setContentPane (new
-				 * SettingsPanel());
-				 *
-				 * int option = JOptionPane.showOptionDialog (null, message,
-				 * "Configuración Inicial de la Empresa", JOptionPane.DEFAULT_OPTION,
-				 * JOptionPane.INFORMATION_MESSAGE, null, options, null);
-				 *
-				 * if (option == JOptionPane.OK_OPTION) { companyName =
-				 * textField.getText ().toUpperCase (); if (companyName.matches
-				 * (companiesString)) { SettingsController.init (companyName,
-				 * runningPath); break; } } else System.exit (0); }
-				 */
-
 			}
 			System.out.println (">>>>>>>>> Empresa: " + companyName + " <<<<<<<<<<");
 		} catch (HeadlessException ex) {
@@ -81,7 +54,7 @@ public class SettingsController {
 
 	public void onSaveButton () {
 		while (true) {
-			String companyName = dialog.getCompanyName ().toUpperCase ();
+			String companyName = dialog.getNombreEmpresa ().toUpperCase ();
 			if (companyName.matches (this.companiesString)) {
 				this.init (companyName, runningPath);
 				dialog.dispose ();
@@ -90,13 +63,15 @@ public class SettingsController {
 				System.exit (0);
 		}
 	}
-		// Int"settings.json" file located in "runningPath"
+	// Int"settings.json" file located in "runningPath"
+
 	public void init (String companyName, String runningPath) {
 		// Create a JSON object
 		JsonObject jsonObject = new JsonObject ();
 		jsonObject.add ("empresa", new JsonPrimitive (companyName));
-		jsonObject.add ("url_creador", new JsonPrimitive (dialog.getDocsCreatorURL ()));
-		jsonObject.add ("url_ecuapass", new JsonPrimitive (dialog.getEcuapassURL ()));
+		jsonObject.add ("ecuapassdocs_url", new JsonPrimitive (dialog.getEcuapassdocsURL ()));
+		jsonObject.add ("codebini_url", new JsonPrimitive (dialog.getCodebiniURL ()));
+		jsonObject.add ("ecuapass_url", new JsonPrimitive (dialog.getEcuapassURL ()));
 		jsonObject.add ("global_pause", new JsonPrimitive ("0.05"));
 		jsonObject.add ("slow_pause", new JsonPrimitive ("0.1"));
 

@@ -7,6 +7,9 @@ import signal
 
 from threading import Thread as threading_Thread
 
+# For open URLs
+from selenium import webdriver
+
 # For server
 from flask import Flask as flask_Flask 
 from flask import request as flask_request 
@@ -18,7 +21,8 @@ from ecuapass_bot_manifiesto import mainBotManifiesto
 from ecuapass_bot_declaracion import mainBotDeclaracion
 
 # Codebin Bot
-from codebin_bot_cartaporte import mainCodebinBotCartaporte
+from codebin_bot import mainCodebinBot
+from ecuapass_bot import EcuBot
 
 from ecuapassdocs.utils.ecuapass_feedback import EcuFeedback
 
@@ -31,6 +35,8 @@ request_received = False
 
 #sys.stdout.reconfigure(encoding='utf-8')
 
+# Driver for web interaction
+driver = None
 def main ():
 	args = sys.argv
 	if len (args) > 1:
@@ -75,6 +81,9 @@ class EcuServer:
 		return (portNumber)
 
 
+	#----------------------------------------------------------------
+	# Listen for remote calls from Java GUI
+	#----------------------------------------------------------------
 	@app.route('/start_processing', methods=['POST'])
 	def start_processing ():
 		printx ("Iniciando procesamiento...")
@@ -103,6 +112,8 @@ class EcuServer:
 			result = EcuServer.botProcessing (jsonFilepath=data1, runningDir=data2)
 		elif (service == "codebin_processing"):
 			result = EcuServer.codebinProcessing (codebinFieldsFile=data1)
+		elif (service == "open_ecuapassdocs_URL"):
+			EcuServer.openEcuapassdocsURL (url=data1)
 		elif (service == "stop"):
 			EcuServer.stop_server ()
 		elif (service == "send_feedback"):
@@ -142,31 +153,69 @@ class EcuServer:
 		return message
 		
 	#----------------------------------------------------------------
+	# Open Ecuapassdocs URL in Chrome browser
+	#----------------------------------------------------------------
+	def openEcuapassdocsURL (url):
+		import pyautogui as py
+
+		windows = py.getAllWindows ()
+		printx (">> Todas las ventanas:", [x.title for x in windows])
+		for win in windows:
+			if "EcuapassDocs" in win.title and "Google" in win.title:
+				win.minimize()
+				win.restore (); py.sleep (1)
+				return
+
+		global driver
+		if driver:
+			driver.quit ()
+		print (">> Inicializando webdriver...")
+		driver = webdriver.Chrome()
+		driver.get (url)
+
+		#printx (f">> Abriendo sitio web de EcuapassDocs: '{url}'")
+		#driver.execute_script("window.open('" + url + "','_blank');")
+
+#		# Check if the URL is already open in another window
+#		url_open = False
+#		printx (f">> Buscando una ventana abierta de EcuapassDocs : '{url}'")
+#		for handle in driver.window_handles:
+#			driver.switch_to.window (handle)
+#			print (f">>>> Ventana : '{driver.current_url}'")
+#			current_url = driver.current_url
+#			if url == current_url:
+#				url_open = True
+#				break
+#
+#
+#		# Optionally, switch to the last opened window
+#		driver.switch_to.window(driver.window_handles[-1])
+		
+		
+	#----------------------------------------------------------------
 	#-- Execute bot according to the document type
 	#-- Doctype is in the first prefix of the jsonFilepath
 	#----------------------------------------------------------------
 	def botProcessing (jsonFilepath, runningDir):
-		docType = os.path.basename (jsonFilepath).split("-")[0]
+		docType = EcuServer.getDoctypeFromFilename (jsonFilepath)
 
-		if docType.lower() == "cartaporte":
+		if docType == "CARTAPORTE":
 			mainBotCartaporte (jsonFilepath, runningDir)
-		if docType.lower() == "manifiesto":
+		elif docType == "MANIFIESTO":
 			mainBotManifiesto (jsonFilepath, runningDir)
-		if docType.lower() == "declaracion":
+		elif docType == "DECLARACION":
 			mainBotDeclaracion (jsonFilepath, runningDir)
+		else:
+			Utils.printx ("ERROR: Tipo de documento desconocido: '{filename}'")
+			sys.exit (0)
 
 	#----------------------------------------------------------------
 	#-- Transmit document fields to CODEBIN web app using Selenium
 	#----------------------------------------------------------------
 	def codebinProcessing (codebinFieldsFile):
-		docType = os.path.basename (codebinFieldsFile).split("-")[0]
+		docType = EcuServer.getDoctypeFromFilename (codebinFieldsFile)
+		mainCodebinBot (docType, codebinFieldsFile)
 
-		if docType.lower() == "cartaporte":
-			mainCodebinBotCartaporte (codebinFieldsFile)
-		if docType.lower() == "manifiesto":
-			mainCodebinBotManifiesto (codebinFieldsFile)
-		if docType.lower() == "declaracion":
-			mainCodebinBotDeclaracion (codebinFieldsFile)
 	#----------------------------------------------------------------
 	#-- Check if document filename is an image (.png) or a PDF file (.pdf)
 	#----------------------------------------------------------------
@@ -175,6 +224,21 @@ class EcuServer:
 		if extension.lower() in ["png", "pdf"]:
 			return True
 		return False
+
+	#----------------------------------------------------------------
+	#-- Get document type from filename
+	#----------------------------------------------------------------
+	def getDoctypeFromFilename (filename):
+		docType = os.path.basename (filename).split("-")[0].upper()
+		if docType == "CARTAPORTE":
+			return ("CARTAPORTE")
+		elif docType == "MANIFIESTO":
+			return ("MANIFIESTO")
+		elif docType == "DECLARACION":
+			return ("DECLARACION")
+		else:
+			Utils.printx ("ERROR: Tipo de documento desconocido: '{docType}'")
+			sys.exit (1)
 
 #--------------------------------------------------------------------
 # Call main 
