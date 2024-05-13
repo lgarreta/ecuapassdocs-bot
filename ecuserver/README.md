@@ -2,7 +2,6 @@
 Extracción y digitación automática de docuentos de cartaportes.
 
 ## LOG
-13/Mayo:  r0.840. Redesigned to extract info from CODEBIN
 22/Abril: r0.834. Redesigned fillSubject. Improved errors messages. Updated ecuapassdocs lib.
 20/Abril: r0.833. Working in CPI, MCI. Testing pause constants: SLOW, FAST, and NORMAL.
 16/Abril: r0.832. Testing a new fillBoxCheck replacing fillBox.
