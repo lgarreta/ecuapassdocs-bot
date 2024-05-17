@@ -99,7 +99,7 @@
     <Component class="config.SettingsPanel" name="settingsPanel">
       <Properties>
         <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-          <Dimension value="[700, 200]"/>
+          <Dimension value="[700, 230]"/>
         </Property>
       </Properties>
       <Constraints>

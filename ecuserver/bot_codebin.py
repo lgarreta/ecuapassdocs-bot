@@ -46,20 +46,84 @@ def main ():
 		inDir = args [2]
 		cleanCodebinCartaportesFiles (inDir)
 
+#-------------------------------------------------------------------
+# Get document values from CODEBIN web using PDF file doc number
+#-------------------------------------------------------------------
+def getValuesFromCodebinWeb (pdfFilepath, settings):
+	try:
+		webdriver = CodebinBot.getWebdriver ()
+		bot      = CodebinBot (settings, webdriver, pdfFilepath)
+
+		# Get codebin values from CODEBIN web
+		codebinValues = bot.getCodebinValuesFromCodebinWeb (bot.docNumber, bot.pais, bot.codigoPais)
+
+		# Format to Azure values
+		azureValues = Utils.getAzureValuesFromCodebinValues (bot.docType,
+																											 codebinValues, bot.docNumber)
+		# Save data
+		outCbinFilename = f"{bot.docType}-{bot.empresa}-{bot.docNumber}-CBINFIELDS.json"
+		outDocFilename  = f"{bot.docType}-{bot.empresa}-{bot.docNumber}-DOCFIELDS.json"
+		json.dump (codebinValues, open (outCbinFilename, "w"), indent=4)
+		json.dump (azureValues, open (outDocFilename, "w"), indent=4, sort_keys=True)
+
+		return outDocFilename
+	except DocumentoNoEncontradoException as ex:
+		raise
+	except:
+		raise Exception ("Problemas al conectarse con CODEBIN. Revise URL, usuario y contraseña") 
+		#Utils.printx (f"ALERTA: Problemas al conectarse con CODEBIN. Revise URL, usuario y contraseña") 
+		Utils.printException ()
+
+	return None
+
+
 #----------------------------------------------------------------
 # Bot for filling CODEBIN forms from ECUDOCS fields info
 #----------------------------------------------------------------
 class CodebinBot:
-	def __init__ (self, settings, webdriver, codebinFieldsFile=None):
-		self.settings          = settings
-		self.empresa           = settings ["empresa"]
-		self.codebinUrl        = settings ["codebin_url"]
-		self.codebinUser       = settings ["codebin_user"]
-		self.codebinPassword   = settings ["codebin_password"]
+	def __init__ (self, settings, webdriver, pdfFilepath, codebinFieldsFile=None):
+		self.settings = settings
+		self.empresa  = settings ["empresa"]
+		self.url      = settings ["codebin_url"]
+		self.user     = settings ["codebin_user"]
+		self.password = settings ["codebin_password"]
 
-		self.codebinFieldsFile = codebinFieldsFile
+		# Init bot settings
+		self.docNumber             = self.getDocumentNumberFromFilename (pdfFilepath) # Special for NTA
+		self.docType               = Utils.getDocumentTypeFromFilename (pdfFilepath)
+		self.pais, self.codigoPais = Utils.getPaisCodigoFromDocNumber (self.docNumber)
+		self.user, self.password   = self.getUserPasswordForEmpresaPais (self.empresa, self.pais)
 
-		self.webdriver            = webdriver
+		self.webdriver             = webdriver
+
+	#------------------------------------------------------
+	#------------------------------------------------------
+	def getUserPasswordForEmpresaPais (self, empresa, pais):
+		user, password = None, None
+		if empresa == "NTA" and pais.upper() == "COLOMBIA":
+			user      = self.settings ["codebin_user"]
+			password  = self.settings ["codebin_password"]
+		elif empresa == "NTA" and pais.upper() == "ECUADOR":
+			user      = self.settings ["codebin_user2"]
+			password  = self.settings ["codebin_password2"]
+		else: # Default: for most companies
+			user      = self.settings ["codebin_user"]
+			password  = self.settings ["codebin_password"]
+
+		return user, password
+
+	#-------------------------------------------------------------------
+	# Get the number (ej. CO00902, EC03455) from the filename
+	#-------------------------------------------------------------------
+	def getDocumentNumberFromFilename (self, filename):
+		numbers = re.findall (r"\w+\d+", filename)
+		docNumber = numbers [-1]
+
+		if self.empresa == "NTA":
+			docNumber = docNumber.replace ("COCO", "CO")
+			docNumber = docNumber.replace ("ECEC", "EC")
+
+		return docNumber
 
 	#------------------------------------------------------
 	# Start Firefox Web Server for CODEBIN session
@@ -77,6 +141,8 @@ class CodebinBot:
 		def funThreadFirefox ():
 			options = Options()
 			#options.add_argument("--headless")
+			CodebinBot.CODEBIN_OPENED = False
+			CodebinBot.PAIS_OPENED = ""
 			CodebinBot.webdriver = webdriver.Firefox (options=options)
 			Utils.printx (">>>>>>>>>>>>>>>> CODEBIN firefox is running <<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 
@@ -84,46 +150,57 @@ class CodebinBot:
 		threadFirefox.start ()
 
 	#-------------------------------------------------------------------
-	# Get document values from CODEBIN web using PDF file doc number
-	#-------------------------------------------------------------------
-	def getValuesFromCodebinWeb (pdfFilepath, settings):
-		try:
-			webdriver = CodebinBot.getWebdriver ()
-			cBot      = CodebinBot (settings, webdriver)
-
-			# Get codebin values from CODEBIN web
-			docNumber     = Utils.getDocumentNumberFromFilename (pdfFilepath)
-			cBot.docType  = Utils.getDocumentTypeFromFilename (pdfFilepath)
-			codebinValues = cBot.getCodebinValuesFromCodebinWeb (docNumber)
-
-			# Format to Azure values
-			azureValues = Utils.getAzureValuesFromCodebinValues (cBot.docType, codebinValues, docNumber)
-			# Save data
-			outCbinFilename = f"{cBot.docType}-{cBot.empresa}-{docNumber}-CBINFIELDS.json"
-			outDocFilename  = f"{cBot.docType}-{cBot.empresa}-{docNumber}-DOCFIELDS.json"
-			json.dump (codebinValues, open (outCbinFilename, "w"), indent=4)
-			json.dump (azureValues, open (outDocFilename, "w"), indent=4, sort_keys=True)
-
-			return outDocFilename
-		except:
-			Utils.printException ()
-			raise Exception (f"ALERTA: Applicación no pudo conectarse con CODEBIN. Revise URL, usuario y contraseña") 
-
-	#-------------------------------------------------------------------
 	#-- Get the CODEBIN id from document number
 	#-- List documents, search the number, and get the id of selected
 	#-------------------------------------------------------------------
-	def getCodebinValuesFromCodebinWeb (self, docNumber):
-		settings     = self.getCodebinSettings ()
-		textMainmenu = settings ["menu"]
-		textSubmenu  = settings ["submenu"]
-		linkDocument = settings ["link"]
-		
-		pais, codigoPais  = Utils.getPaisCodigoFromDocNumber (docNumber)
-		
-		self.webdriver = self.openCodebinWeb ()
-		self.login (pais)
+	def getCodebinValuesFromCodebinWeb (self, docNumber, pais, codigoPais):
 
+		if CodebinBot.PAIS_OPENED == pais:
+			self.webdriver.back ()    # Search results
+		else:
+			self.openCodebinWebByFirstTime ()
+			self.login (pais)
+
+		searchField, docsTable, documentUrl = self.getSearchDocumentFieldFromMenu () 
+		searchField.send_keys (docNumber)
+
+		# Get table, get row, and extract id
+		try:
+			#table   = container.find_element (By.TAG_NAME, "table")
+			docLink = docsTable.find_element (By.PARTIAL_LINK_TEXT, docNumber)
+			idText  = docLink.get_attribute ("onclick")
+			docId   = re.findall (r"\d+", idText)[-1]
+		except selenium.common.exceptions.NoSuchElementException:
+			raise DocumentoNoEncontradoException(f"ALERTA: Documento número '{docNumber}' no encontrado")
+
+		# Get CODEBIN link for document with docId
+		self.webdriver.get (documentUrl % docId)
+
+		# Get Codebin values from document form
+		docForm       = self.webdriver.find_element (By.TAG_NAME, "form")
+		codebinValues = self.getCodebinValuesFromCodebinForm (docForm, codigoPais, docNumber)
+		CodebinBot.PAIS_OPENED = pais
+
+		self.closeInitialCodebinWindow ()
+
+		return codebinValues
+
+	#-------------------------------------------------------------------
+	#-------------------------------------------------------------------
+	def getSearchDocumentFieldFromBack (self, pais):
+		if CodebinBot.PAIS_OPENED == pais:
+			self.webdriver.back ()    # Search results
+			return 
+
+	#-------------------------------------------------------------------
+	#-------------------------------------------------------------------
+	def getSearchDocumentFieldFromMenu (self):
+		# Get 
+		urlSettings  = self.getCodebinUrlSettingsForEmpresa ()
+		textMainmenu = urlSettings ["menu"]
+		textSubmenu  = urlSettings ["submenu"]
+		documentUrl  = urlSettings ["link"]
+	
 		# Select menu Carta Porte I
 		cpi = self.webdriver.find_element (By.PARTIAL_LINK_TEXT, textMainmenu)
 		cpi.click ()
@@ -140,27 +217,12 @@ class CodebinBot:
 
 		# get and set number into input 'Buscar'
 		cpi_lista_container = self.webdriver.find_elements (By.CLASS_NAME, "container")
-		container = cpi_lista_container [0]
+		container           = cpi_lista_container [0]
 		time.sleep (1)
-		cpi_lista_buscar    = container.find_element (By.TAG_NAME, "input")
-		cpi_lista_buscar.send_keys (docNumber)
+		searchField    = container.find_element (By.TAG_NAME, "input")
+		searchTable    = container.find_element (By.TAG_NAME, "table")
 
-		# Get table, get row, and extract id
-		table   = container.find_element (By.TAG_NAME, "table")
-		docLink = table.find_element (By.PARTIAL_LINK_TEXT, docNumber)
-		idText  = docLink.get_attribute ("onclick")
-		docId   = re.findall (r"\d+", idText)[-1]
-		
-		# Get CODEBIN link for document with docId
-		self.webdriver.get (linkDocument % docId)
-
-		# Get Codebin values from document form
-		docForm       = self.webdriver.find_element (By.TAG_NAME, "form")
-		codebinValues = self.getCodebinValuesFromCodebinForm (docForm, codigoPais, docNumber)
-
-		self.closeInitialCodebinWindow ()
-
-		return codebinValues
+		return searchField, searchTable, documentUrl
 
 	#-------------------------------------------------------------------
 	# Close initial codebin windows
@@ -174,27 +236,26 @@ class CodebinBot:
 			self.webdriver.switch_to.window (handle)
 			current_title = self.webdriver.title
 
-			if "GRUPO BYZA SAS" in current_title:
+			if "GRUPO BYZA SAS" in current_title or \
+			"NUEVO TRANSPORTE DE AMERICA CIA LTDA" in current_title:
 				self.webdriver.close()  # Close the window with the matching title
 				break  # Exit the loop once the target window is closed		
 
 		self.webdriver.switch_to.window (original_window)
 
-
-
 	#-------------------------------------------------------------------
 	# Initial browser opening
 	#-------------------------------------------------------------------
-	def openCodebinWeb (self):
+	def openCodebinWebByFirstTime (self):
 		print ("Opening CODEBIN web...")
 		# Open and click on "Continuar" button
 		if self.webdriver == None:
 			Utils.printx ("Iniciando servidor desde login...")
-			self.webdriver = webdriver.Firefox ()
+			options = Options()
+			#options.add_argument("--headless")
+			self.webdriver = webdriver.Firefox (options=options)
 
-		print ("-- webdriver:", CodebinBot.webdriver)
-
-		self.webdriver.get (self.codebinUrl)
+		self.webdriver.get (self.url)
 		#self.webdriver.get ("https://byza.corebd.net")
 		submit_button = self.webdriver.find_element(By.XPATH, "//input[@type='submit']")
 		submit_button.click()
@@ -204,7 +265,7 @@ class CodebinBot:
 		winMenu = self.webdriver.window_handles [-1]
 		self.webdriver.switch_to.window (winMenu)
 
-		return self.webdriver
+		CodebinBot.CODEBIN_OPENED = True
 
 	#-------------------------------------------------------------------
 	# Returns the web driver after login into CODEBIN
@@ -215,10 +276,10 @@ class CodebinBot:
 		loginForm = self.webdriver.find_element (By.TAG_NAME, "form")
 		userInput = loginForm.find_element (By.NAME, "user")
 		#userInput.send_keys ("GRUPO BYZA")
-		userInput.send_keys (self.codebinUser)
+		userInput.send_keys (self.user)
 		pswdInput = loginForm.find_element (By.NAME, "pass")
 		#pswdInput.send_keys ("GrupoByza2020*")
-		pswdInput.send_keys (self.codebinPassword)
+		pswdInput.send_keys (self.password)
 
 		# Login Form:  Select pais (Importación or Exportación : Colombia or Ecuador)
 		docSelectElement = self.webdriver.find_element (By.XPATH, "//select[@id='tipodoc']")
@@ -238,7 +299,7 @@ class CodebinBot:
 		for key in fields.keys():
 			codebinField = fields [key]["codebinField"]
 			try:
-				elem = docForm.find_element (By.ID, codebinField)
+				elem = docForm.find_element (By.NAME, codebinField)
 				value = elem.get_attribute ("value")
 				codebinValues [codebinField] = value
 			except NoSuchElementException:
@@ -264,16 +325,25 @@ class CodebinBot:
 	#-------------------------------------------------------------------
 	# Return settings for acceding to CODEBIN documents
 	#-------------------------------------------------------------------
-	def getCodebinSettings (self):
+	def getCodebinUrlSettingsForEmpresa (self):
+		prefix = None
+		if self.empresa == "BYZA":
+			prefix = "byza"
+		elif self.empresa == "NTA":
+			prefix = "nta"
+		else:
+			raise Exception ("Empresa desconocida")
+		
+
 		settings = {}
 		if self.docType == "CARTAPORTE":
-			settings ["link"]    = "https://byza.corebd.net/1.cpi/nuevo.cpi.php?modo=3&idunico=%s"
+			settings ["link"]    = f"https://{prefix}.corebd.net/1.cpi/nuevo.cpi.php?modo=3&idunico=%s"
 			settings ["menu"]    = "Carta Porte I"
 			settings ["submenu"] = "1.cpi/lista.cpi.php?todos=todos"
 			settings ["prefix"]  = "CPI"
 
 		elif self.docType == "MANIFIESTO":
-			settings ["link"]    = "https://byza.corebd.net/2.mci/nuevo.mci.php?modo=3&idunico=%s"
+			settings ["link"]    = f"https://{prefix}.corebd.net/2.mci/nuevo.mci.php?modo=3&idunico=%s"
 			settings ["menu"]    = "Manifiesto de Carga"
 			settings ["submenu"] = "2.mci/lista.mci.php?todos=todos"
 			settings ["prefix"]  = "MCI"
@@ -548,12 +618,17 @@ def cleanCodebinCartaportesFiles (inDir):
 			os.system (f"mv {path} {invalidDir}")
 
 #----------------------------------------------------------------
+# Needs to update parameters
 # startCodebinBot
 #----------------------------------------------------------------
 def startCodebinBot (docType, codebinFieldsFile):
 	botCodebin = CodebinBot (docType, codebinFieldsFile)
 	botCodebin.transmitFileToCodebin (codebinFieldsFile)
 
+#-----------------------------------------------------------
+#-----------------------------------------------------------
+class DocumentoNoEncontradoException (Exception):
+	pass
 #-----------------------------------------------------------
 # Call to main
 #-----------------------------------------------------------

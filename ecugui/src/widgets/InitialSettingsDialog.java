@@ -1,14 +1,9 @@
 package widgets;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import config.ConfigController;
+import config.SettingsController;
 import documento.DocModel;
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
-import java.io.FileWriter;
-import org.json.simple.JSONObject;
 
 // Creates a dialog for waiting to finish or cancel the document processing
 public class InitialSettingsDialog {
@@ -21,20 +16,19 @@ public class InitialSettingsDialog {
 	private JLabel messageLabel;
 
 	private config.SettingsPanel settingsPanel;
-	private ConfigController configController;
+	private SettingsController configController;
 
 	public InitialSettingsDialog (JFrame mainFrame) {
 		this.mainFrame = mainFrame;
-		//configController = new ConfigController (null);
+		//configController = new SettingsController (null);
 	}
 
-	public void setController (ConfigController controller) {
+	public void setController (SettingsController controller) {
 		this.configController = controller;
 	}
 
 	public void startProcess () {
 		//mainFrame.setEnabled (false);
-
 		initialDialog = new JDialog (mainFrame, "Configuración Inicial...", Dialog.ModalityType.APPLICATION_MODAL);
 		initialDialog.setSize (DIALOG_WIDTH, DIALOG_HEIGHT);
 		initialDialog.setResizable (true);

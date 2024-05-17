@@ -1,6 +1,6 @@
 package main;
 
-import config.ConfigController;
+import config.SettingsController;
 import config.FeedbackView;
 import documento.DocModel;
 import documento.DocRecord;
@@ -28,7 +28,7 @@ import workers.ServerWorker;
 
 public class MainController extends Controller {
 
-	String appRelease = "0.843";
+	String appRelease = "0.85";
 	DocModel doc;             // Handles invoice data: selected, processed, and no procesed
 	MainView mainView;
 	InputsView inputsView;
@@ -41,7 +41,7 @@ public class MainController extends Controller {
 	ProgressDialog progressDialog;     // Dialog showed when document processing starts
 
 	//SettingsController settingsController; // Initial configuration parameters
-	ConfigController configController;
+	SettingsController configController;
 
 	public MainController () {
 		try {
@@ -69,7 +69,7 @@ public class MainController extends Controller {
 		mainView.setDefaultCloseOperation (WindowConstants.DO_NOTHING_ON_CLOSE);
 
 		// Inital configuration settings
-		configController = new ConfigController (this);
+		configController = new SettingsController (this);
 		configController.initSettings (mainView);
 		DocModel.companyName = configController.getSettingsValue ("empresa");
 		feedbackView = configController.feedbackView;
@@ -194,8 +194,9 @@ public class MainController extends Controller {
 			ClosingMessage.showClosingMessage("Applicación se está cerrando");
 
 			boolean stopFlag = serverWorker.startProcess ("stop", null, null);
-			out ("Servidor finalizado.");
-			//System.exit (0);
+			out ("Finalizando Cliente...");
+			Thread.sleep(3 * 1000);
+			System.exit (0);
 		} catch (Exception ex) {
 			ex.printStackTrace ();
 			System.exit (0);

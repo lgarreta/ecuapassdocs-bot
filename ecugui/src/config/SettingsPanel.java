@@ -5,13 +5,13 @@ import org.json.simple.JSONObject;
 
 public class SettingsPanel extends javax.swing.JPanel {
 
-	ConfigController controller;
+	SettingsController controller;
 
 	public SettingsPanel () {
 		initComponents ();
 	}
 
-	public void setController (ConfigController controller) {
+	public void setController (SettingsController controller) {
 		this.controller = controller;
 	}
 
@@ -23,6 +23,8 @@ public class SettingsPanel extends javax.swing.JPanel {
 		settings.put ("codebin_url", codebinUrl.getText ());
 		settings.put ("codebin_user", codebinUser.getText ());
 		settings.put ("codebin_password", codebinPassword.getText ());
+		settings.put ("codebin_user2", codebinUser2.getText ());
+		settings.put ("codebin_password2", codebinPassword2.getText ());
 		settings.put ("NORMAL_PAUSE", normalPause.getText ());
 		settings.put ("SLOW_PAUSE", slowPause.getText ());
 		settings.put ("FAST_PAUSE", fastPause.getText ());
@@ -35,6 +37,8 @@ public class SettingsPanel extends javax.swing.JPanel {
 			codebinUrl.setText ((String) settings.get ("codebin_url"));
 			codebinUser.setText ((String) settings.get ("codebin_user"));
 			codebinPassword.setText ((String) settings.get ("codebin_password"));
+			codebinUser2.setText ((String) settings.get ("codebin_user2"));
+			codebinPassword2.setText ((String) settings.get ("codebin_password2"));
 			normalPause.setText ((String) settings.get ("NORMAL_PAUSE"));
 			slowPause.setText ((String) settings.get ("SLOW_PAUSE"));
 			fastPause.setText ((String) settings.get ("FAST_PAUSE"));
@@ -53,6 +57,10 @@ public class SettingsPanel extends javax.swing.JPanel {
     codebinUser = new javax.swing.JTextField();
     ecuapassLabel = new javax.swing.JLabel();
     codebinPassword = new widgets.PasswordFieldWithToggle();
+    codebinUsuario2Label = new javax.swing.JLabel();
+    codebinUser2 = new javax.swing.JTextField();
+    codebinPassword2Label = new javax.swing.JLabel();
+    codebinPassword2 = new widgets.PasswordFieldWithToggle();
     normalPauseLabel = new javax.swing.JLabel();
     normalPause = new javax.swing.JTextField();
     slowPauseLabel = new javax.swing.JLabel();
@@ -66,24 +74,32 @@ public class SettingsPanel extends javax.swing.JPanel {
     setLayout(new java.awt.BorderLayout());
 
     ConfigurationPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Configuración"));
-    ConfigurationPanel.setPreferredSize(new java.awt.Dimension(700, 116));
-    ConfigurationPanel.setLayout(new java.awt.GridLayout(7, 2));
+    ConfigurationPanel.setPreferredSize(new java.awt.Dimension(700, 140));
+    ConfigurationPanel.setLayout(new java.awt.GridLayout(9, 2));
 
     companyLabel.setText("Empresa:");
     ConfigurationPanel.add(companyLabel);
     ConfigurationPanel.add(empresa);
 
-    codebiniLabel.setText("Codebini URL:");
+    codebiniLabel.setText("Codebin URL:");
     ConfigurationPanel.add(codebiniLabel);
     ConfigurationPanel.add(codebinUrl);
 
-    ecuapassdocsLabel.setText("Codebini Usuario ");
+    ecuapassdocsLabel.setText("Codebin Usuario:");
     ConfigurationPanel.add(ecuapassdocsLabel);
     ConfigurationPanel.add(codebinUser);
 
-    ecuapassLabel.setText("Codebini Contraseña:");
+    ecuapassLabel.setText("Codebin Contraseña:");
     ConfigurationPanel.add(ecuapassLabel);
     ConfigurationPanel.add(codebinPassword);
+
+    codebinUsuario2Label.setText("Codebin Usuario 2:");
+    ConfigurationPanel.add(codebinUsuario2Label);
+    ConfigurationPanel.add(codebinUser2);
+
+    codebinPassword2Label.setText("Codebin Contraseña 2:");
+    ConfigurationPanel.add(codebinPassword2Label);
+    ConfigurationPanel.add(codebinPassword2);
 
     normalPauseLabel.setText("Tiempo Pausa Normal (0.05 Seg):");
     ConfigurationPanel.add(normalPauseLabel);
@@ -147,8 +163,12 @@ public class SettingsPanel extends javax.swing.JPanel {
   private javax.swing.JPanel ConfigurationPanel;
   private javax.swing.JButton cancelButton;
   private widgets.PasswordFieldWithToggle codebinPassword;
+  private widgets.PasswordFieldWithToggle codebinPassword2;
+  private javax.swing.JLabel codebinPassword2Label;
   private javax.swing.JTextField codebinUrl;
   private javax.swing.JTextField codebinUser;
+  private javax.swing.JTextField codebinUser2;
+  private javax.swing.JLabel codebinUsuario2Label;
   private javax.swing.JLabel codebiniLabel;
   private javax.swing.JLabel companyLabel;
   private javax.swing.JLabel ecuapassLabel;

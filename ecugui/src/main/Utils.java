@@ -197,13 +197,15 @@ public class Utils {
 		return Utils.convertToOSPath (tempFile.toString ());
 	}
 
-	// Used to read to fill Ecuapass comboBoxes (e.g paises, ciudades, etc.)
+	// Used to read and fill Ecuapass comboBoxes (e.g paises, ciudades, etc.)
 	public static String[] readDataFromFile (String filename) {
 		List<String> data = new ArrayList<> ();
 		String[] arrData = null;
 		try (BufferedReader reader = new BufferedReader (new FileReader (filename))) {
 			String line;
 			while ((line = (String) reader.readLine ()) != null) {
+				if (line.contains ("+++"))
+					continue;
 				data.add (new String (line.getBytes (), "UTF-8"));
 			}
 			arrData = data.toArray (new String[0]);

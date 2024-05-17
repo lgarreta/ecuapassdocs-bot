@@ -100,14 +100,13 @@ public class ResultsController extends Controller {
 
 		String jsonFilename = Utils.getResultsFile (docFilename, "ECUFIELDS.json");
 		this.updateJsonDocumentWithViewChanges (docModel.workingPath, jsonFilename);
-
 		// Show instructions and start process
+
 		String docType = Utils.getDocumentTypeFromFilename (docFilename);
 		String info = "";
-		info += "1. Vaya a cargar documentos del ECUAPASS.\n";
-		info += "2. Engrandezca la ventana del ECUAPASS (maximizar).\n";
-		info += "3. Desplace la página al inicio (Borre datos anteriores)\n";
-		info += "4. Regrese a esta aplicación y de click en 'Aceptar'";
+		info += "1. Aliste la ventana del ECUAPASS para cargar " + docType + "S.\n";
+		info += "2. Engrandezca la ventana del ECUAPASS y deslicela hasta el inicio.\n\n";
+		info += "3. Regrese a esta App y de click en 'Aceptar'";
 		Object[] options = {"Aceptar", "Cancelar"};
 		int option = JOptionPane.showOptionDialog (this.resultsView, info, "Preparación Digitación Automática",
 			JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options, null);

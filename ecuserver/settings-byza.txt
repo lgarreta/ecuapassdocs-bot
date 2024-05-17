@@ -5,5 +5,5 @@
   "codebin_password": "GrupoByza2020*",
   "NORMAL_PAUSE": "0.05",
   "SLOW_PAUSE": "0.5",
-  "FAST_PAUSE": "0.01"
+  "FAST_PAUSE": "0.1"
 }

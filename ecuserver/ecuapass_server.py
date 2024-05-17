@@ -20,7 +20,7 @@ from flask import request as flask_request
 from werkzeug.serving import make_server
 
 # doc, document bots
-from ecuapass_doc import mainDoc
+from ecuapass_doc import EcuDoc
 from ecuapass_bot_cartaporte import mainBotCartaporte
 from ecuapass_bot_manifiesto import mainBotManifiesto
 from ecuapass_bot_declaracion import mainBotDeclaracion
@@ -136,7 +136,7 @@ class EcuServer:
 	#----------------------------------------------------------------
 	def stop_server ():
 		printx ("Finalizando sesión de CODEBIN...")
-		webdriver = CodebinBot.getWebdriver ()
+		webdriver = EcuServer.CodebinBot.getWebdriver ()
 		webdriver.quit ()
 		printx ("...sesión CODEBIN finalizada")
 		EcuServer.should_stop = True
@@ -147,20 +147,19 @@ class EcuServer:
 	#-- Concurrently process one document given its path
 	#----------------------------------------------------------------
 	def analizeOneDocument (docFilepath, runningDir):
-
 		workingDir = os.path.dirname (docFilepath)
 
+		# Check if PDF is a valid ECUAPASS document
 		if not EcuServer.isValidDocument (docFilepath):
 			return f"Tipo de documento '{docFilepath}' no válido"
 
 		# Create and start threads for processing files
-		docFiles = [docFilepath]
-		threads = []
 		os.chdir (workingDir)
-		for docFilepath in docFiles:
-			thread = threading_Thread (target=mainDoc, args=(docFilepath, runningDir))
-			threads.append (thread)
-			thread.start()
+		ecudoc = EcuDoc ()
+
+		TARGET = ecudoc.extractDocumentFields
+		ARGS   = (docFilepath, runningDir)
+		threading_Thread (target=TARGET, args=ARGS).start ()
 
 	#----------------------------------------------------------------
 	# Open Ecuapassdocs URL in Chrome browser

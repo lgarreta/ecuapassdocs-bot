@@ -32,7 +32,6 @@ class EcuBotManifiesto (EcuBot):
 		super().__init__ (jsonFilepath, runningDir, "MANIFIESTO")
 
 	def fillEcuapass (self):
-		print (self.fields)
 		self.skipN (2)
 
 		# print ("\n>>>>>> Identificacion del Transportista Autorizado <<<")

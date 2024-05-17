@@ -1,9 +1,11 @@
 {
-  "empresa": "BYZA",
-  "codebin_url": "https://byza.corebd.net/",
-  "codebin_user": "GRUPO BYZA",
-  "codebin_password": "GrupoByza2020*",
-  "NORMAL_PAUSE": "0.05",
+  "codebin_user": "MARCELA",
   "SLOW_PAUSE": "0.5",
-  "FAST_PAUSE": "0.1"
+  "FAST_PAUSE": "0.01",
+  "NORMAL_PAUSE": "0.05",
+  "empresa": "NTA",
+  "codebin_password": "NTAIPIALES2023",
+  "codebin_password2": "NTAIPIALES2023",
+  "codebin_user2": "KARLA",
+  "codebin_url": "https://nta.corebd.net"
 }

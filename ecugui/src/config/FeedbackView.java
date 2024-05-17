@@ -9,14 +9,14 @@ import org.json.simple.JSONObject;
 
 public class FeedbackView extends javax.swing.JPanel {
 
-	ConfigController controller;
+	SettingsController controller;
 
 	public FeedbackView () {
 		initComponents ();
 		this.setFont (new Font ("Monospaced", Font.PLAIN, 15));
 	}
 
-	public void setController (ConfigController configController) {
+	public void setController (SettingsController configController) {
 		this.controller = configController;
 		this.settingsPanel.setController (configController);
 	}
@@ -105,7 +105,7 @@ public class FeedbackView extends javax.swing.JPanel {
 
     add(messagesScroll, java.awt.BorderLayout.CENTER);
 
-    settingsPanel.setPreferredSize(new java.awt.Dimension(700, 200));
+    settingsPanel.setPreferredSize(new java.awt.Dimension(700, 230));
     add(settingsPanel, java.awt.BorderLayout.PAGE_END);
   }// </editor-fold>//GEN-END:initComponents
 

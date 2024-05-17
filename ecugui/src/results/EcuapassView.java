@@ -156,7 +156,6 @@ public class EcuapassView extends JScrollPane {
 				String itemFilename = rootItem.contains ("derivado") ? "derivado" : childName + "_" + rootItem.toLowerCase ();
 				String resourcesFile = Paths.get (DocModel.temporalPath, "resources", this.resourcesDir, itemFilename + ".txt").toString ();
 				String[] items = Utils.readDataFromFile (resourcesFile);
-				// String[] items = Utils.readDataResourceFromFile (this, this.resourcesDir + itemFilename + ".txt");
 				subItemsMap.put (rootItem, items);
 			}
 		String resourcesFile = Paths.get (DocModel.temporalPath, "resources", this.resourcesDir, "derivado.txt").toString ();

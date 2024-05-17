@@ -149,7 +149,7 @@ class EcuBot:
 			while not self.isOnFindButton () and nTries < 5:
 				Utils.printx ("...Esperando botón de búsqueda")
 				self.skipN (3, "LEFT"); py.sleep (self.SLOW_PAUSE)	# Regresa para que se active el boton de "find" 
-				fillData (); py.sleep (0.01)
+				fillData (fieldPais, fieldTipoId, fieldNumeroId); py.sleep (0.01)
 				nTries += 1
 
 			if nTries == 5:
@@ -216,6 +216,7 @@ class EcuBot:
 			py.press ("Tab")
 
 		py.PAUSE = self.NORMAL_PAUSE
+
 	#--------------------------------------------------------------------
 	# Select value in combo box by pasting, checking, and pasting
 	# Return true if selected, raise an exception in other case.
@@ -231,7 +232,7 @@ class EcuBot:
 			py.PAUSE = self.NORMAL_PAUSE
 			for i in range (10):
 				pyperclip_copy (fieldValue)
-				py.hotkey ("ctrl", "v"); py.sleep (0.01);py.press ("down"); 
+				py.hotkey ("ctrl", "v"); py.sleep (0.05);py.press ("down"); 
 				pyperclip_copy ("")
 
 				py.hotkey ("ctrl","c"); 
@@ -241,7 +242,8 @@ class EcuBot:
 				if fieldValue.lower() in text.lower():
 					py.PAUSE = 0.3
 					pyperclip_copy (fieldValue)
-					py.hotkey ("ctrl", "v"); py.press ("down"); py.press ("Enter");py.sleep (0.01)
+					py.hotkey ("ctrl", "v"); py.press ("enter"); py.sleep (0.01)
+					#py.hotkey ("ctrl", "v"); 
 					py.PAUSE = self.NORMAL_PAUSE
 
 					#py.press ("TAB") if TAB_FLAG == "TAB" else py.press ("Enter")
