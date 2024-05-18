@@ -60,9 +60,10 @@ public class ServerWorker extends SwingWorker {
 			// Check if cloud process ended successfully
 			if (statusMsg.contains ("Análisis exitoso del documento"))
 				controller.onEndProcessing ("EXITO", statusMsg);
-			else if (statusMsg.contains ("Finalizando servidor Ecuapass"))
+			else if (statusMsg.contains ("Finalizando servidor Ecuapass")) {
+				System.out.println (">>> CLIENTE: Finalizando servidor Ecuapass");
 				System.exit (0);
-			else if (statusMsg.contains ("SERVER: ERROR:")) {
+			}else if (statusMsg.contains ("SERVER: ERROR:")) {
 				controller.onEndProcessing ("ERROR", statusMsg);
 			}
 			else if (statusMsg.contains ("SERVER: ALERTA:")) {
@@ -130,7 +131,7 @@ public class ServerWorker extends SwingWorker {
 			// Create JSON payload and write it to the connection's output stream
 			String jsonPayload = String.format ("{\"%s\":\"%s\", \"%s\":\"%s\", \"%s\":\"%s\"}",
 				"service", service, "data1", data1, "data2", data2);
-
+			System.out.println ("CLIENTE: Calling service: " + service );
 			try (OutputStream os = connection.getOutputStream ()) {
 				byte[] input = jsonPayload.getBytes (StandardCharsets.UTF_8);
 				os.write (input, 0, input.length);
@@ -143,8 +144,8 @@ public class ServerWorker extends SwingWorker {
 			} else
 				controller.out ("Solicitud fallida con código de respuesta: " + responseCode);
 		} catch (IOException ex) {
-			//ex.printStackTrace ();
-			controller.out ("ALERTA: Servidor cartaportes no responde..");
+			controller.out ("ALERTA: Servidor 'EcuServer' no responde..");
+			ex.printStackTrace ();
 		}
 		return false;
 	}

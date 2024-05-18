@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
-VERSION="0.842"
+VERSION="0.86"
 """
 LOG: 
- - 0.842:Mayo10: Moified to work with CODEBIN web as a thread
+ - 0.86: Mayo16: Improved Codebin conextion (back) and error handling.
 """
 
 import os, sys, time
@@ -116,6 +116,7 @@ class EcuServer:
 				EcuServer.openEcuapassdocsURL (url=data1)
 
 			elif (service == "stop"):
+				printx ("...Attending 'stop_server'...") 
 				EcuServer.stop_server ()
 
 			elif (service == "send_feedback"):
@@ -135,12 +136,10 @@ class EcuServer:
 	# Stop server
 	#----------------------------------------------------------------
 	def stop_server ():
-		printx ("Finalizando sesión de CODEBIN...")
-		webdriver = EcuServer.CodebinBot.getWebdriver ()
+		printx ("...Finalizando sesión de CODEBIN...")
+		webdriver = CodebinBot.getWebdriver ()
 		webdriver.quit ()
-		printx ("...sesión CODEBIN finalizada")
-		EcuServer.should_stop = True
-		printx ("Finalizando servidor Ecuapass ...")
+		printx ("...Finalizando servidor Ecuapass...")
 		sys.exit (0)
 
 	#----------------------------------------------------------------

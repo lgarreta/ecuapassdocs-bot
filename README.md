@@ -2,6 +2,7 @@
 Extracción y digitación automática de docuentos de cartaportes.
 
 ## LOG
+18/Mayo:  r0.851  Improved Codebin going back. Improved exit (GUI and Server).
 17/Mayo:  r0.85.  Improved Codebin extraction by going back. Added two users to GUI.
 13/Mayo:  r0.840. Redesigned to extract info from CODEBIN
 22/Abril: r0.834. Redesigned fillSubject. Improved errors messages. Updated ecuapassdocs lib.

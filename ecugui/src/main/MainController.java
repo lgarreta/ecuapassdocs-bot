@@ -4,6 +4,8 @@ import config.SettingsController;
 import config.FeedbackView;
 import documento.DocModel;
 import documento.DocRecord;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import widgets.ImageViewLens;
@@ -18,6 +20,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
+import javax.swing.Timer;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 import org.json.simple.parser.ParseException;
@@ -28,7 +31,7 @@ import workers.ServerWorker;
 
 public class MainController extends Controller {
 
-	String appRelease = "0.85";
+	String appRelease = "0.86";
 	DocModel doc;             // Handles invoice data: selected, processed, and no procesed
 	MainView mainView;
 	InputsView inputsView;
@@ -42,6 +45,7 @@ public class MainController extends Controller {
 
 	//SettingsController settingsController; // Initial configuration parameters
 	SettingsController configController;
+	Timer timer;
 
 	public MainController () {
 		try {
@@ -73,7 +77,7 @@ public class MainController extends Controller {
 		configController.initSettings (mainView);
 		DocModel.companyName = configController.getSettingsValue ("empresa");
 		feedbackView = configController.feedbackView;
-			
+
 		// Init InputsView
 		inputsView = new InputsView ();
 		inputsView.setController (this);
@@ -104,15 +108,15 @@ public class MainController extends Controller {
 		// Start resultsController
 		if (resultsController != null)
 			tabsPanel.remove (resultsController.resultsView);
-		
+
 		resultsController = new ResultsController (this, doc, serverWorker);
 		tabsPanel.addTab ("Resultados", resultsController.resultsView);
 
 		// Call to server to start processing documents
 		serverWorker.copyDocsToProjectsDir (doc.getSelectedRecords ());
-		
-		DocRecord docRecord = doc.getSelectedRecords ().get (0);		
-		
+
+		DocRecord docRecord = doc.getSelectedRecords ().get (0);
+
 		String docFilepath = Utils.convertToOSPath (docRecord.docFilepath);
 		serverWorker.startProcess ("doc_processing", docFilepath, DocModel.runningPath);
 		progressDialog = new ProgressDialog (mainView);
@@ -160,7 +164,7 @@ public class MainController extends Controller {
 	public void onEndProcessing (String statusMsg, String text) {
 		try {
 			if (statusMsg.contains ("EXITO")) {
-				String docFilepath = text.split ("'")[1].trim ();			
+				String docFilepath = text.split ("'")[1].trim ();
 				String jsonFilepath = Utils.getResultsFile (docFilepath, "ECUFIELDS.json");
 				String docType = Utils.getDocumentTypeFromFilename (docFilepath);
 				//new File (docFilepath).getName ().split ("-")[0];
@@ -174,32 +178,29 @@ public class MainController extends Controller {
 			} else {
 				out ("Documento procesado con errores");
 				progressDialog.endProcess ("document_processed");
-				String message = text.split ("ERROR:")[1].replace ("\\","\n");
-				JOptionPane.showMessageDialog (this.getMainView (), message);			
+				String message = text.split ("ERROR:")[1].replace ("\\", "\n");
+				JOptionPane.showMessageDialog (this.getMainView (), message);
 			}
 		} catch (ParseException | IOException ex) {
 			Logger.getLogger (MainController.class.getName ()).log (Level.SEVERE, null, ex);
 		}
 	}
 
-  public static void showClosingMessage(String message) {
-    Thread thread = new Thread(() -> JOptionPane.showMessageDialog(null, message, "Closing Application", JOptionPane.INFORMATION_MESSAGE));
-    thread.start();
-  }
-	
+	public static void showClosingMessage (String message) {
+		Thread thread = new Thread (() -> JOptionPane.showMessageDialog (null, message, "Closing Application", JOptionPane.INFORMATION_MESSAGE));
+		thread.start ();
+	}
+
 	// Stop cartaporte server if it was opened
 	@Override
 	public void onWindowClossing () {
 		try {
-			ClosingMessage.showClosingMessage("Applicación se está cerrando");
-
 			boolean stopFlag = serverWorker.startProcess ("stop", null, null);
+			ClosingMessage.showClosingMessage ("Applicación se está cerrando");
 			out ("Finalizando Cliente...");
-			Thread.sleep(3 * 1000);
-			System.exit (0);
+			this.forcedExitWithTimer (5);
 		} catch (Exception ex) {
 			ex.printStackTrace ();
-			System.exit (0);
 		}
 	}
 
@@ -301,6 +302,17 @@ public class MainController extends Controller {
 //		}
 	}
 
+	private void forcedExitWithTimer (int timeInSeconds) {
+		timer = new Timer (timeInSeconds * 1000, new ActionListener () {  // Timer fires after 5 seconds
+			@Override
+			public void actionPerformed (ActionEvent e) {
+				out ("Tiempo de finalización terminado..!");
+				System.exit (1);
+			}
+		});
+		timer.start (); // Start the timer
+	}
+
 	public static void main (String args[]) {
 
 		//Set the Nimbus look and feel
@@ -335,8 +347,9 @@ public class MainController extends Controller {
 }
 
 class ClosingMessage {
-  public static void showClosingMessage(String message) {
-    Thread thread = new Thread(() -> JOptionPane.showMessageDialog(null, message, "Cerrando aplicación", JOptionPane.INFORMATION_MESSAGE));
-    thread.start();
-  }
+
+	public static void showClosingMessage (String message) {
+		Thread thread = new Thread (() -> JOptionPane.showMessageDialog (null, message, "Cerrando aplicación", JOptionPane.INFORMATION_MESSAGE));
+		thread.start ();
+	}
 }

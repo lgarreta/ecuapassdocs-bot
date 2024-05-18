@@ -1,9 +1,0 @@
-{
-  "empresa": "BYZA",
-  "codebin_url": "https://nta.corebd.net/",
-  "codebin_user": "GRUPO BYZA",
-  "codebin_password": "GrupoByza2020*",
-  "NORMAL_PAUSE": "0.05",
-  "SLOW_PAUSE": "0.5",
-  "FAST_PAUSE": "0.1"
-}
