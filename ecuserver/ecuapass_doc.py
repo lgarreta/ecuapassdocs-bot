@@ -20,7 +20,7 @@ from ecuapassdocs.info.ecuapass_feedback import EcuFeedback
 from ecuapassdocs.info.ecuapass_utils import Utils
 
 from ecuapass_azure import EcuAzure
-from bot_codebin import CodebinBot, getValuesFromCodebinWeb
+from bot_codebin import  CodebinBot, mainGetValuesFromCodebinWeb, DocumentNotFoundException 
 
 USAGE="\n\
 Extract info from ECUAPASS documents in PDF (cartaporte|manifiesto|declaracion).\n\
@@ -73,6 +73,8 @@ class EcuDoc:
 
 			printx (f"Análisis exitoso del documento: '{inputFilepath}'")
 			return (ecuFile, docFile, cbinFile, edocsFile)
+		except DocumentNotFoundException as ex:
+			printx (f"ALERTA: Verifique el número del documento:\\\\{str(ex)}")
 		except Exception as ex:
 			printx (f"ERROR: No se pudo extraer campos del documento:\\\\{str(ex)}")
 			Utils.printException (ex)
@@ -95,7 +97,7 @@ class EcuDoc:
 #			return fieldsJsonFile
 
 		# CODEBIN BOT: Get data from CODEBIN web
-		fieldsJsonFile = getValuesFromCodebinWeb (inputFilepath, settings)
+		fieldsJsonFile = mainGetValuesFromCodebinWeb (inputFilepath, settings)
 		if fieldsJsonFile:
 			return fieldsJsonFile
 

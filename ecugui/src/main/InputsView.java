@@ -1,17 +1,15 @@
 package main;
 
 import documento.DocModel;
-import documento.DocRecord;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.JFileChooser;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
@@ -21,8 +19,11 @@ import javax.swing.JViewport;
 import javax.swing.Timer;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DocumentFilter;
 import widgets.ImageViewLens;
-import widgets.InputsControlPanel;
 
 public class InputsView extends javax.swing.JPanel {
 
@@ -30,16 +31,21 @@ public class InputsView extends javax.swing.JPanel {
   // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
   private void initComponents() {
 
+    docNumberGroup = new javax.swing.ButtonGroup();
     filesPanel = new javax.swing.JPanel();
     selectionPanel = new javax.swing.JPanel();
     fileChooser = new javax.swing.JFileChooser();
-    controlsPanel = new widgets.InputsControlPanel();
     controlPanel = new javax.swing.JPanel();
+    jLabel1 = new javax.swing.JLabel();
+    docNumberPanel = new javax.swing.JPanel();
+    docNumberField = new javax.swing.JTextField();
+    docNumberCPI = new javax.swing.JRadioButton();
+    docNumberMCI = new javax.swing.JRadioButton();
     processDocumentButton = new javax.swing.JButton();
     openEcuapassdocsButton = new javax.swing.JButton();
-    filesTable = new main.FileSelectionTable();
     imageView = new widgets.ImageViewLens();
 
+    setPreferredSize(new java.awt.Dimension(800, 500));
     setLayout(new java.awt.BorderLayout());
 
     filesPanel.setPreferredSize(new java.awt.Dimension(600, 800));
@@ -57,15 +63,34 @@ public class InputsView extends javax.swing.JPanel {
     fileChooser.setMultiSelectionEnabled(true);
     selectionPanel.add(fileChooser, java.awt.BorderLayout.CENTER);
 
-    controlsPanel.setBackground(new java.awt.Color(204, 255, 204));
-    selectionPanel.add(controlsPanel, java.awt.BorderLayout.PAGE_END);
-
     controlPanel.setBackground(new java.awt.Color(204, 255, 204));
-    controlPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Un sólo documento:"));
+    controlPanel.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+
+    jLabel1.setText("<html>  Seleccione o digite el<br>número de documento:</html>");
+    jLabel1.setOpaque(true);
+    controlPanel.add(jLabel1);
+
+    docNumberPanel.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+    docNumberPanel.setPreferredSize(new java.awt.Dimension(220, 70));
+    docNumberPanel.setRequestFocusEnabled(false);
+
+    docNumberField.setFont(new java.awt.Font("DejaVu Sans Mono", 0, 18)); // NOI18N
+    docNumberField.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+    docNumberField.setPreferredSize(new java.awt.Dimension(190, 30));
+    docNumberPanel.add(docNumberField);
+
+    docNumberGroup.add(docNumberCPI);
+    docNumberCPI.setText("CartaPorte");
+    docNumberPanel.add(docNumberCPI);
+
+    docNumberGroup.add(docNumberMCI);
+    docNumberMCI.setText("Manifiesto");
+    docNumberPanel.add(docNumberMCI);
+
+    controlPanel.add(docNumberPanel);
 
     processDocumentButton.setBackground(new java.awt.Color(255, 255, 0));
-    processDocumentButton.setText("<html>  Procesar <br> Documento Actual</html>");
-    processDocumentButton.setEnabled(false);
+    processDocumentButton.setText("<html>Procesar</html>");
     processDocumentButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         processDocumentButtonActionPerformed(evt);
@@ -85,7 +110,6 @@ public class InputsView extends javax.swing.JPanel {
     selectionPanel.add(controlPanel, java.awt.BorderLayout.PAGE_START);
 
     filesPanel.add(selectionPanel);
-    filesPanel.add(filesTable);
 
     add(filesPanel, java.awt.BorderLayout.WEST);
 
@@ -98,44 +122,38 @@ public class InputsView extends javax.swing.JPanel {
 		// TODO add your handling code here
 		controller.openCreadorDocumentosEcuapass ();
 		/*
-		String url = "https://ecuapassdocs-production.up.railway.app/"; // Specify the URL here
-
-		try {
-			// Check if the Desktop API is supported (available on desktop environments)
-			if (Desktop.isDesktopSupported ()) {
-				// Get the desktop object
-				Desktop desktop = Desktop.getDesktop ();
-
-				// Open the specified URL in the default browser
-				desktop.browse (new URI (url));
-			} else
-				System.out.println ("Desktop API is not supported on this platform.");
-		} catch (Exception e) {
-			e.printStackTrace ();
-		}
-		*/
+		 * String url = "https://ecuapassdocs-production.up.railway.app/"; //
+		 * Specify the URL here
+		 *
+		 * try { // Check if the Desktop API is supported (available on desktop
+		 * environments) if (Desktop.isDesktopSupported ()) { // Get the desktop
+		 * object Desktop desktop = Desktop.getDesktop ();
+		 *
+		 * // Open the specified URL in the default browser desktop.browse (new URI
+		 * (url)); } else System.out.println ("Desktop API is not supported on this
+		 * platform."); } catch (Exception e) { e.printStackTrace (); }
+		 */
   }//GEN-LAST:event_openEcuapassdocsButtonActionPerformed
 
   private void processDocumentButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_processDocumentButtonActionPerformed
 		// Reinitialize views
-		controller.onReinitialize ();		
-		// Send filechooser file to selected files in table
-		try {
-			controller.onSendSelectedFiles ();
+		//controller.onReinitialize ();
+		//			controller.onProcessDocument ();
+		if (controller.processSelectedDocument ())
 			controller.onStartProcessing ();
-		} catch (FileNotFoundException ex) {
-			Logger.getLogger (InputsControlPanel.class.getName ()).log (Level.SEVERE, null, ex);
-		}
-
   }//GEN-LAST:event_processDocumentButtonActionPerformed
 
   // Variables declaration - do not modify//GEN-BEGIN:variables
   private javax.swing.JPanel controlPanel;
-  private widgets.InputsControlPanel controlsPanel;
+  private javax.swing.JRadioButton docNumberCPI;
+  private javax.swing.JTextField docNumberField;
+  private javax.swing.ButtonGroup docNumberGroup;
+  private javax.swing.JRadioButton docNumberMCI;
+  private javax.swing.JPanel docNumberPanel;
   private javax.swing.JFileChooser fileChooser;
   private javax.swing.JPanel filesPanel;
-  private main.FileSelectionTable filesTable;
   private widgets.ImageViewLens imageView;
+  private javax.swing.JLabel jLabel1;
   private javax.swing.JButton openEcuapassdocsButton;
   private javax.swing.JButton processDocumentButton;
   private javax.swing.JPanel selectionPanel;
@@ -146,19 +164,16 @@ public class InputsView extends javax.swing.JPanel {
 	public InputsView () {
 		initComponents ();
 		modifyFileChooser ();
-		this.controlsPanel.setVisible (false);
-		this.filesTable.setVisible (false);
-		
+		initDocNumberField ();
+
 		//if (DocModel.companyName.equals ("BYZA")==false)
-			this.openEcuapassdocsButton.setVisible (DocModel.SHOW_DOCS_BUTTONS);
+		this.openEcuapassdocsButton.setVisible (DocModel.SHOW_DOCS_BUTTONS);
 	}
 
 	public void setController (Controller controller) {
 		this.controller = controller;
-		filesTable.setController (controller, "tableSelectedFiles");
-		//filesTable.setDoctypeComboBoxToTable ();
-		controlsPanel.setController (controller);
 		addFileChooserListeners ();
+		fileChooser.setSelectedFile (null);
 	}
 
 	public void addFileChooserListeners () {
@@ -200,7 +215,7 @@ public class InputsView extends javax.swing.JPanel {
 		return null;
 	}
 
-private void modifyFileChooser () {
+	private void modifyFileChooser () {
 		// Changes FileChooser text from english to spanish 
 		UIManager.put ("FileChooser.fileNameLabelText", "Archivos");
 		UIManager.put ("FileChooser.filesOfTypeLabelText", "Tipos de Archivos");
@@ -221,7 +236,70 @@ private void modifyFileChooser () {
 
 	}
 
-	// Hide last file panel from JFileChooser component
+	// DocNumber functions
+	private void initDocNumberField () {
+		((AbstractDocument) docNumberField.getDocument ()).setDocumentFilter (new UppercaseDocumentFilter ());
+	}
+
+	public void resetDocNumberType () {
+		this.docNumberField.setText ("");
+		this.docNumberGroup.clearSelection ();
+	}
+
+	public void setDocNumberType (String docNumber, String docType) {
+		this.docNumberField.setText (docNumber);
+		if (docType.equals ("CARTAPORTE"))
+			this.docNumberCPI.setSelected (true);
+		else if (docType.equals ("MANIFIESTO"))
+			this.docNumberMCI.setSelected (true);
+	}
+
+	public boolean checkDocNumberType () {
+		String docNumber = this.docNumberField.getText ();
+		String docType = this.docNumberCPI.isSelected () ? "CARTAPORTE" : null;
+		docType = this.docNumberMCI.isSelected () ? "MANIFIESTO" : docType;
+		return this.checkDocNumberType (docNumber, docType);
+	}
+
+	public boolean checkDocNumberType (String docNumber, String docType) {
+		if (docNumber == null) {
+			JOptionPane.showMessageDialog (controller.getMainView (), "Número de documento inválido.");
+			this.resetDocNumberType ();
+			return false;
+		}
+		if (docType == null) {
+			JOptionPane.showMessageDialog (this, "Seleccione el tipo de documento.");
+			return false;
+		}
+		//this.setDocNumberType (docNumber, docType);
+		return true;
+	}
+
+	public String getDocNumber () {
+		return this.docNumberField.getText ();
+	}
+
+	public String getDocType (String shortName) {
+		boolean docTypeCPI = this.docNumberCPI.isSelected ();
+		boolean docTypeMCI = this.docNumberMCI.isSelected ();
+		if (docTypeCPI)
+			return shortName.equals ("SHORTNAME") ? "CPI" : "CARTAPORTE";
+		else if (docTypeMCI)
+			return shortName.equals ("SHORTNAME") ? "MCI" : "MANIFIESTO";
+		else
+			return null;
+	}
+
+	public String createFilenameFromDocNumber () throws Exception {
+		if (this.checkDocNumberType ()) {
+			String docNumber = this.getDocNumber ();
+			String filename = "DUMMY-%s-%s.pdf".format (getDocType ("SHORTNAME"), docNumber);
+			return filename;
+		} else
+			throw new Exception ("No se pudo crear nombre de archivo CODEBIN");
+	}
+
+// Hide last file panel from JFileChooser component
 	private void hideFileSelComponents (Component[] components) {
 		// traverse through the components
 		for (int i = 0; i < components.length; i++) {
@@ -242,10 +320,6 @@ private void modifyFileChooser () {
 		fileChooser.setCurrentDirectory (new File (selectedDir));
 	}
 
-	public File getFileAt (int row, int col) {
-		return (new File (filesTable.getFileAt (row, col)));
-	}
-
 	public File[] getSelectedFiles () {
 		File[] selectedFiles = fileChooser.getSelectedFiles ();
 		for (File fi : selectedFiles) {
@@ -261,6 +335,20 @@ private void modifyFileChooser () {
 		fileChooser.setSelectedFiles (allFiles);
 	}
 
+	public String getFileWithDocNumberFromFileChooser (String substring) {
+		File[] files = fileChooser.getCurrentDirectory ().listFiles ();		
+		String regex = substring + "\\b";
+		Pattern pattern = Pattern.compile (regex);
+		for (File file : files) {
+			Matcher matcher = pattern.matcher(file.getName ());
+			if (matcher.find ()) {
+				fileChooser.setSelectedFile (file);
+				return file.toString ();
+			}
+		}
+		return null;
+	}
+
 	public File[] getAllFilesFromChooser () {
 		fileChooser.setAcceptAllFileFilterUsed (false);
 		FileNameExtensionFilter filter = new FileNameExtensionFilter ("Images/pdf files", "jpg", "png", "pdf");
@@ -273,17 +361,12 @@ private void modifyFileChooser () {
 		return (allFiles);
 	}
 
-	public void addNoProcessedRecords (DocRecord record) {
-		filesTable.addNoProcessedRecord (record);
-	}
-
-	// Remove record (map and table) give the doc filename
-	public void removeRecord (String docFilename) {
-		filesTable.removeRecord (docFilename);
+	public void clearSelectedFile () {
+		fileChooser.setSelectedFile (null);
+		this.resetDocNumberType ();
 	}
 
 	public void clearSelectedFiles () {
-		filesTable.clear ();
 		File[] selFiles = fileChooser.getSelectedFiles ();
 		if (selFiles.length == 1)
 			return;
@@ -298,33 +381,16 @@ private void modifyFileChooser () {
 	public void enableProcessingButton (boolean value) {
 		this.processDocumentButton.setEnabled (value);
 	}
+}
 
-	// Get documents from table and assign the document type
-	boolean prepareRecords () {
-		int nRows = filesTable.tableModel.getRowCount ();
-		if (nRows == 0) {
-			JOptionPane.showMessageDialog (this, "No hay documentos seleccionados para procesar!");
-			return false;
-		}
+//---------------------------------------------------------------------------------------
+// Class for allow only upercase to DocNumberField
+//---------------------------------------------------------------------------------------
+class UppercaseDocumentFilter extends DocumentFilter {
 
-		for (int i = 0; i < nRows; i++) {
-			String docName = (String) filesTable.getTable ().getValueAt (i, 1);
-			DocRecord docRecord = (DocRecord) filesTable.recordsMap.get (docName);
-
-			if (docRecord.docType.matches ("CARTAPORTE|MANIFIESTO|DECLARACION")) {
-				filesTable.tableModel.setValueAt (docRecord.docType, i, 0);
-				continue;
-			} else {
-				String docTypeTable = (String) filesTable.getTable ().getValueAt (i, 0);
-				if (docTypeTable.matches ("CARTAPORTE|MANIFIESTO|DECLARACION")) {
-					docRecord.setDocType (docTypeTable);
-					continue;
-				} else {
-					JOptionPane.showMessageDialog (this, "Falta definir el tipo de documento: cartaporte, manifiesto o declaración");
-					return false;
-				}
-			}
-		}
-		return true;
+	@Override
+	public void replace (DocumentFilter.FilterBypass fb, int offset, int length, String str, AttributeSet attr)
+		throws BadLocationException {
+		super.replace (fb, offset, length, str != null ? str.toUpperCase () : null, attr);
 	}
 }

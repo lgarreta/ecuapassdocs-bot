@@ -1,5 +1,6 @@
 package main;
 
+import documento.DocModel;
 import java.awt.Color;
 import java.awt.Desktop;
 import java.awt.image.BufferedImage;
@@ -20,6 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import javax.imageio.ImageIO;
@@ -42,6 +45,10 @@ public class Utils {
 			File destPath = new File (destFilepath);
 			//System.out.println  (">>> FUENTE: " + sourcePath);
 			//System.out.println  (">>> DESTINO: " + destPath);
+			if (sourcePath.getName ().contains ("DUMMY")) {
+				destPath.createNewFile ();
+				return;
+			}
 			if (destPath.exists ())
 				Files.delete (destPath.toPath ());
 			Files.copy (sourcePath.toPath (), destPath.toPath (), StandardCopyOption.REPLACE_EXISTING);
@@ -50,6 +57,20 @@ public class Utils {
 			//Logger.getLogger (Utils.class.getName ()).log (Level.SEVERE, null, ex);
 		}
 
+	}
+
+	// Extract the document number from a filename
+	public static String extractDocNumber (String filename) {
+		Pattern pattern = Pattern.compile ("(CO|COCO|EC|ECEC)(\\d+)");
+		Matcher matcher = pattern.matcher (filename);
+
+		if (matcher.find ()) {
+			String prefix = matcher.group (1);
+			prefix = prefix.replace ("COCO", "CO");
+			prefix = prefix.replace ("ECEC", "EC");			
+			return prefix + matcher.group (2); // Combine prefix and number
+		}else
+			return null; // No match found
 	}
 
 	// Return document type if document title is found in PDF lines
@@ -76,10 +97,8 @@ public class Utils {
 			return "CARTAPORTE";
 		else if (filename.contains ("MCI") || filename.contains ("MANIFIESTO"))
 			return "MANIFIESTO";
-		else if (filename.contains ("DCL") || filename.contains ("DECLARACION"))
-			return "DECLARACION";
-
-		return "NONE";
+		else
+			return null;
 	}
 
 	public static String[] getLinesFromPDF (String pdfFilepath) {
@@ -167,6 +186,12 @@ public class Utils {
 		URL resourceURL = null;
 		resourceURL = obj.getClass ().getClassLoader ().getResource ("resources/" + resourceName);
 		return (resourceURL.getPath ());
+	}
+	
+	public static String getResourcePathFromTmpDir (String resourceName) {
+		String resourcesFile = Paths.get (DocModel.temporalPath, "resources", resourceName).toString ();
+		return (resourcesFile);
+		
 	}
 
 //	public static String getResourcePath (String runningPath, String resourceName) {
@@ -289,5 +314,19 @@ public class Utils {
 
 	public static void main (String[] args) {
 		Utils.convertPDFToImage (new File ("/home/lg/AAA/factura-oxxo2.pdf"));
+	}
+
+	// A default image is returned according to the document type
+	public static File getDefaultDocImage (File docFilepath, Object obj) {
+		String docType = Utils.getDocumentTypeFromFilename (docFilepath.getName ());
+		String imagePath = null;
+		if (docType.equals ("CARTAPORTE"))
+			imagePath = Utils.getResourcePathFromTmpDir ("images/cartaporte-DUMMY.png");
+		else if (docType.equals ("MANIFIESTO"))
+			imagePath = Utils.getResourcePathFromTmpDir ("images/manifiesto-DUMMY.png");
+		else
+			imagePath = Utils.getResourcePathFromTmpDir ("images/image-DUMMY.png");
+		
+		return new File (imagePath);
 	}
 }

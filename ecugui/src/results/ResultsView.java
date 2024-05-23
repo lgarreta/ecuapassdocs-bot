@@ -27,7 +27,7 @@ public class ResultsView extends javax.swing.JPanel {
     setLayout(new java.awt.BorderLayout());
 
     splitImage.setBackground(new java.awt.Color(204, 204, 255));
-    splitImage.setMinimumSize(new java.awt.Dimension(732, 400));
+    splitImage.setMinimumSize(new java.awt.Dimension(100, 200));
 
     splitFiles.setBackground(new java.awt.Color(204, 204, 255));
     splitFiles.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
@@ -74,7 +74,8 @@ public class ResultsView extends javax.swing.JPanel {
 
     splitImage.setRightComponent(splitFiles);
 
-    imageView.setMinimumSize(new java.awt.Dimension(400, 500));
+    imageView.setMinimumSize(new java.awt.Dimension(200, 300));
+    imageView.setPreferredSize(new java.awt.Dimension(200, 500));
     splitImage.setLeftComponent(imageView);
 
     add(splitImage, java.awt.BorderLayout.CENTER);

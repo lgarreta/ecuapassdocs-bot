@@ -4,6 +4,7 @@ import config.SettingsController;
 import config.FeedbackView;
 import documento.DocModel;
 import documento.DocRecord;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
@@ -31,7 +32,7 @@ import workers.ServerWorker;
 
 public class MainController extends Controller {
 
-	String appRelease = "0.86";
+	String appRelease = "0.87";
 	DocModel doc;             // Handles invoice data: selected, processed, and no procesed
 	MainView mainView;
 	InputsView inputsView;
@@ -46,6 +47,8 @@ public class MainController extends Controller {
 	//SettingsController settingsController; // Initial configuration parameters
 	SettingsController configController;
 	Timer timer;
+	// Current selected file from FileChooser
+	File selectedFile = null;
 
 	public MainController () {
 		try {
@@ -100,11 +103,6 @@ public class MainController extends Controller {
 	// Start document processing after button pressed in InpusView
 	@Override
 	public void onStartProcessing () {
-		// Check if document type was asigned
-		if (inputsView.prepareRecords () == false)
-			return;
-
-		out ("Inicio del procesamiento de los documentos...");
 		// Start resultsController
 		if (resultsController != null)
 			tabsPanel.remove (resultsController.resultsView);
@@ -113,9 +111,8 @@ public class MainController extends Controller {
 		tabsPanel.addTab ("Resultados", resultsController.resultsView);
 
 		// Call to server to start processing documents
-		serverWorker.copyDocsToProjectsDir (doc.getSelectedRecords ());
-
-		DocRecord docRecord = doc.getSelectedRecords ().get (0);
+		serverWorker.copyDocToProjectsDir (doc.currentRecord);
+		DocRecord docRecord = doc.currentRecord;
 
 		String docFilepath = Utils.convertToOSPath (docRecord.docFilepath);
 		serverWorker.startProcess ("doc_processing", docFilepath, DocModel.runningPath);
@@ -123,45 +120,52 @@ public class MainController extends Controller {
 		progressDialog.startProcess ();
 	}
 
-	@Override
-	public void onTableCellSelected (int row, int col, String id) {
-		File docFilepath = inputsView.getFileAt (row, col);
-		onFileSelected (docFilepath);
-	}
-
 	// Selected docFile in  FileChooser or table from InputsFilesViewProjects
 	@Override
 	public void onFileSelected (File docFilepath) {
-		imageView.showImage (docFilepath);
+		String docNumber = Utils.extractDocNumber (docFilepath.getName ());
+		System.out.println ("+++ extracted docNumber" + docFilepath + " +++ " + docNumber);
+		String docType = Utils.getDocumentTypeFromFilename (docFilepath.getName ());
+		if (inputsView.checkDocNumberType (docNumber, docType)) {
+			selectedFile = docFilepath;
+			inputsView.setDocNumberType (docNumber, docType);
+			imageView.showImage (docFilepath);
+		}
 	}
 
-	// Select all files from FileChooser
 	@Override
-	public void onSelectAllFiles () {
-		inputsView.selectAllFiles ();
+	public boolean processSelectedDocument () {
+		try {
+			String docNumber = inputsView.getDocNumber ();
+			if (Utils.extractDocNumber (docNumber) == null) {
+				JOptionPane.showMessageDialog (this.mainView, "Número documento: '" + docNumber + "' inválido.");
+				return false;
+			}
+			String selectedFilename = inputsView.getFileWithDocNumberFromFileChooser (docNumber);
+			if (selectedFilename == null) {
+				selectedFilename = inputsView.createFilenameFromDocNumber ();
+				String docType = inputsView.getDocType ("LONGNAME");
+				selectedFile = new File (selectedFilename);
+				doc.currentRecord = new DocRecord (selectedFile.toString (), docType);
+			} else {
+				selectedFile = new File (selectedFilename);
+				doc.currentRecord = new DocRecord (selectedFile.toString ());
+			}
+			this.onFileSelected (selectedFile);
+		} catch (Exception ex) {
+			out ("EXCEPCION: No se pudo procesar documento : " + selectedFile.getName ());
+			ex.printStackTrace ();
+			return false;
+		}
+		return true;
 	}
 
 	// InputsView files selected by FileChooser
 	// Send selected file to ready table
-	@Override
-	public void onSendSelectedFiles () throws FileNotFoundException {
-		File[] selectedFiles = inputsView.getSelectedFiles ();
-		if (selectedFiles.length > 0) {
-			for (File docFilepath : selectedFiles) {
-				DocRecord record = new DocRecord (docFilepath.toString ());
-				if (doc.existsRecord (record) == false) {
-					inputsView.addNoProcessedRecords (record);
-					doc.addSelectedRecord (record);
-				}
-			}
-			AppPrefs.FileLocation.put (selectedFiles[0].getParentFile ().getAbsolutePath ());
-		} else
-			JOptionPane.showMessageDialog (inputsView, "No hay documentos seleccionados!");
-	}
-
 	// ServeWorker notification 
 	@Override
-	public void onEndProcessing (String statusMsg, String text) {
+	public void onEndProcessing (String statusMsg, String text
+	) {
 		try {
 			if (statusMsg.contains ("EXITO")) {
 				String docFilepath = text.split ("'")[1].trim ();
@@ -173,16 +177,17 @@ public class MainController extends Controller {
 				resultsController.addProcessedRecord (record);
 				resultsController.resultsView.selectFirstRecord ();
 				progressDialog.endProcess ("document_processed");
-				inputsView.removeRecord (record.docFilename);
 				tabsPanel.setSelectedIndex (2);
 			} else {
 				out ("Documento procesado con errores");
 				progressDialog.endProcess ("document_processed");
 				String message = text.split ("ERROR:")[1].replace ("\\", "\n");
-				JOptionPane.showMessageDialog (this.getMainView (), message);
+				JOptionPane.showMessageDialog (mainView, message);
+
 			}
 		} catch (ParseException | IOException ex) {
-			Logger.getLogger (MainController.class.getName ()).log (Level.SEVERE, null, ex);
+			Logger.getLogger (MainController.class
+				.getName ()).log (Level.SEVERE, null, ex);
 		}
 	}
 
@@ -196,7 +201,7 @@ public class MainController extends Controller {
 	public void onWindowClossing () {
 		try {
 			boolean stopFlag = serverWorker.startProcess ("stop", null, null);
-			ClosingMessage.showClosingMessage ("Applicación se está cerrando");
+			ClosingMessage.showClosingMessage ("Applicación se está cerrando", this.mainView);
 			out ("Finalizando Cliente...");
 			this.forcedExitWithTimer (5);
 		} catch (Exception ex) {
@@ -236,13 +241,11 @@ public class MainController extends Controller {
 	// Send feedback to cloud
 	@Override
 	public void onSendFeedback (String feedbackText) {
-		String docFilepath = inputsView.getFileAt (1, 1).toString ();
 
 		String zipFilepath = Utils.createTempCompressedFileFromText (feedbackText);
 		// Call to server to start processing documents
 		System.out.println ("-- " + zipFilepath);
-		System.out.println ("-- " + docFilepath);
-		serverWorker.startProcess ("send_feedback", zipFilepath, docFilepath);
+		//serverWorker.startProcess ("send_feedback", zipFilepath, docFilepath);
 	}
 
 	public String getAppRelease () {
@@ -329,9 +332,11 @@ public class MainController extends Controller {
 				//	javax.swing.UIManager.setLookAndFeel (info.getClassName ());
 				//	break;
 				//}
+
 			}
 		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
-			java.util.logging.Logger.getLogger (MainView.class.getName ()).log (java.util.logging.Level.SEVERE, null, ex);
+			java.util.logging.Logger.getLogger (MainView.class
+				.getName ()).log (java.util.logging.Level.SEVERE, null, ex);
 		}
 		//</editor-fold>
 
@@ -348,8 +353,8 @@ public class MainController extends Controller {
 
 class ClosingMessage {
 
-	public static void showClosingMessage (String message) {
-		Thread thread = new Thread (() -> JOptionPane.showMessageDialog (null, message, "Cerrando aplicación", JOptionPane.INFORMATION_MESSAGE));
+	public static void showClosingMessage (String message, Component mainWindow) {
+		Thread thread = new Thread (() -> JOptionPane.showMessageDialog (mainWindow, message, "Cerrando aplicación", JOptionPane.INFORMATION_MESSAGE));
 		thread.start ();
 	}
 }

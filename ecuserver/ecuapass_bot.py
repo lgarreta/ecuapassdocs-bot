@@ -68,9 +68,9 @@ class EcuBot:
 		try:
 			Utils.printx (f"Versión0.981. Iniciando ingreso de documento '{self.jsonFilepath}'")
 			self.initEcuapassWindow ()
-			#py.sleep (0.2)
+			py.sleep (0.2)
 			self.fillEcuapass ()
-			Utils.printx (f"ALERTA: Finalizada la digitación")
+			Utils.printx (f"MENSAJE: Finalizada digitación del Documento")
 		except Exception as ex:
 			message = str (ex).strip (")(") 
 			Utils.printx (f"ALERTA: {message}")

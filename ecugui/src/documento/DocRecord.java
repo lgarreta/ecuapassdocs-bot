@@ -44,11 +44,18 @@ public class DocRecord {
 		this.jsonFilepath = null;
 		this.mainFields = null;
 		setDocType (Utils.getDocumentTypeFromPDF (docFilepath));
+		
+	}
+	public DocRecord (String docFilepath, String docType) {
+		this.docFilepath = docFilepath;
+		this.jsonFilepath = null;
+		this.mainFields = null;
+		setDocType (docType);		
 	}
 
 	// Constructor used after processing files
 	public DocRecord (String docType, String docFilepath, String jsonFilepath) throws ParseException, IOException {
-		this (docFilepath);
+		this (docFilepath, docType);
 		this.docType = docType.toUpperCase ();
 		this.jsonFilepath = jsonFilepath;
 		this.mainFields = this.getMainFields ();

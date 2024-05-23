@@ -3,32 +3,31 @@
 VERSION="0.86"
 """
 LOG: 
- - 0.86: Mayo16: Improved Codebin conextion (back) and error handling.
+ - 0.86: Mayo16: Improved Codebin conection (back) and error handling.
 """
 
-import os, sys, time
+import os, sys
 import signal
-
 from threading import Thread as threading_Thread
-
-# For open URLs
-from selenium import webdriver
 
 # For server
 from flask import Flask as flask_Flask 
 from flask import request as flask_request 
 from werkzeug.serving import make_server
 
+# Codebin, Ecuapassdocs Bot
+from bot_codebin import CodebinBot
+from bot_codebin import startCodebinBot
+from bot_ecuapassdocs import startEcuapassdocsBot
+
+# For open URLs
+from selenium import webdriver
+
 # doc, document bots
 from ecuapass_doc import EcuDoc
 from ecuapass_bot_cartaporte import mainBotCartaporte
 from ecuapass_bot_manifiesto import mainBotManifiesto
 from ecuapass_bot_declaracion import mainBotDeclaracion
-
-# Codebin, Ecuapassdocs Bot
-from bot_codebin import startCodebinBot, CodebinBot
-from bot_ecuapassdocs import startEcuapassdocsBot
-from ecuapass_bot import EcuBot
 
 from ecuapassdocs.info.ecuapass_feedback import EcuFeedback
 from ecuapassdocs.info.ecuapass_utils import Utils
@@ -65,16 +64,15 @@ class EcuServer:
 	runningDir = os.getcwd()
 
 	def run_server_forever ():
+		CodebinBot.initCodebinWebdriver ()
+
 		portNumber  = EcuServer.getPortNumber ()
 		server = make_server('127.0.0.1', portNumber, app)
 
 		# Start firefox webdriver
-		CodebinBot.initCodebinWebdriver ()
-
 		printx (f">>>>>>>>>>>>>>>> Server version: {VERSION} <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 		printx (f">>>>>>>>>>>>>>>> Server is running on port::{portNumber}::<<<<<<<<<<<<<<<<<<")
 		server.serve_forever()
-		#printx (f">>>>>>>>>>>>>>>> Server is running on port::{portNumber}::<<<<<<<<<<<<<<<<<<")
 
 	#----------------------------------------------------------------
 	# Listen for remote calls from Java GUI

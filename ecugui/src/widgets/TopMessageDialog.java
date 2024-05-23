@@ -1,10 +1,7 @@
 package widgets;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Insets;
 import java.awt.Point;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -14,17 +11,17 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Arrays;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
 import static javax.swing.WindowConstants.DISPOSE_ON_CLOSE;
 import javax.swing.border.EmptyBorder;
 
 public class TopMessageDialog extends JDialog implements ActionListener {
 
 	public TopMessageDialog (JFrame parent, String message) {
-		super ((JFrame) parent, "ALERTA", false);
+		super ((JFrame) parent, "MENSAJE", false);
 
 		// Set AlwaysOnTop property
 		setAlwaysOnTop (true);
+		setModal (true);
 
 		// Set dialog within parent frame if one exists
 		if (parent != null) {
@@ -35,8 +32,8 @@ public class TopMessageDialog extends JDialog implements ActionListener {
 		// Create a description pane
 		JPanel descPanel = new JPanel ();
 		// message = message.replace ("\n", "<br>");
-		String [] lines = message.split ("\\\\");
-		String mainMessage = String.format ("<h3><center>%s</center></h3>", lines [0]);
+		String[] lines = message.split ("\\\\");
+		String mainMessage = String.format ("<h3><center>%s</center></h3>", lines[0]);
 
 		String infoMessage = "";
 		if (lines.length > 1) {
@@ -45,9 +42,8 @@ public class TopMessageDialog extends JDialog implements ActionListener {
 		}
 		message = "".format ("<html>%s<p>%s</p><html/>", mainMessage, infoMessage);
 		JLabel textArea = new JLabel (message);
-		textArea.setBorder(new EmptyBorder(10,20,10,20));
+		textArea.setBorder (new EmptyBorder (10, 20, 10, 20));
 
-		
 		descPanel.add (textArea);
 		this.add (descPanel);
 		// Create a button pane

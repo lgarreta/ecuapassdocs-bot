@@ -2,6 +2,7 @@ package workers;
 
 import documento.DocModel;
 import documento.DocRecord;
+import java.awt.Frame;
 import main.Controller;
 import main.MainController;
 import main.Utils;
@@ -63,14 +64,18 @@ public class ServerWorker extends SwingWorker {
 			else if (statusMsg.contains ("Finalizando servidor Ecuapass")) {
 				System.out.println (">>> CLIENTE: Finalizando servidor Ecuapass");
 				System.exit (0);
-			}else if (statusMsg.contains ("SERVER: ERROR:")) {
+			} else if (statusMsg.contains ("SERVER: ERROR:"))
 				controller.onEndProcessing ("ERROR", statusMsg);
-			}
 			else if (statusMsg.contains ("SERVER: ALERTA:")) {
 				// Display to user'ALERTA' messages 
 				statusMsg = statusMsg.split ("ALERTA:")[1];
 				TopMessageDialog dialog = new TopMessageDialog (controller.getMainView (), statusMsg);
-				dialog.setVisible (true);
+			} else if (statusMsg.contains ("SERVER: MENSAJE:")) {
+				// Display to user'ALERTA' messages 
+				// Hide the main frame
+				controller.getMainView ().setState (Frame.ICONIFIED);
+				statusMsg = statusMsg.split ("MENSAJE:")[1];
+				TopMessageDialog dialog = new TopMessageDialog (controller.getMainView (), statusMsg);
 			} else if (statusMsg.contains ("Server is running on port")) {
 				String portString = statusMsg.split ("::")[1].trim ();
 				int urlPortNumber = Integer.parseInt (portString);
@@ -79,9 +84,8 @@ public class ServerWorker extends SwingWorker {
 			} else if (statusMsg.contains ("FEEDBACK:")) {  // Server sends feedback
 				String docFilepath = statusMsg.split ("'")[1];
 				controller.onSendFeedback (docFilepath);
-			} else if (statusMsg.contains ("Problemas procesando documento")) {
+			} else if (statusMsg.contains ("Problemas procesando documento"))
 				controller.onEndProcessing ("ERROR", statusMsg);
-			}
 		}
 	}
 
@@ -129,9 +133,8 @@ public class ServerWorker extends SwingWorker {
 			connection.setDoOutput (true);
 
 			// Create JSON payload and write it to the connection's output stream
-			String jsonPayload = String.format ("{\"%s\":\"%s\", \"%s\":\"%s\", \"%s\":\"%s\"}",
-				"service", service, "data1", data1, "data2", data2);
-			System.out.println ("CLIENTE: Calling service: " + service );
+			String formatStr = "{\"%s\":\"%s\", \"%s\":\"%s\", \"%s\":\"%s\"}";
+			String jsonPayload = String.format (formatStr, "service", service, "data1", data1, "data2", data2);
 			try (OutputStream os = connection.getOutputStream ()) {
 				byte[] input = jsonPayload.getBytes (StandardCharsets.UTF_8);
 				os.write (input, 0, input.length);
@@ -194,22 +197,18 @@ public class ServerWorker extends SwingWorker {
 	}
 
 	// Copy input files in 'DocModel' to new working dir with new docType name
-	public void copyDocsToProjectsDir (ArrayList<DocRecord> records) {
+	public void copyDocToProjectsDir (DocRecord docRecord) {
 		docModel.createFolder (docModel.projectsPath);
+		File docFilepath = new File (docRecord.docFilepath);
+		File destFilepath = new File (docModel.projectsPath, docRecord.docTypeFilename);
+		Utils.copyFile (docFilepath.toString (), destFilepath.toString ());
 
-		for (DocRecord record : records) {
-			// Copy source document image
-			File docFilepath = new File (record.docFilepath);
-			File destFilepath = new File (docModel.projectsPath, record.docTypeFilename);
-			Utils.copyFile (docFilepath.toString (), destFilepath.toString ());
-
-			// Copy cache document in pickle file
-			File docCacheFilepath = new File (Utils.getResultsFile (record.docFilepath, "CACHE.pkl"));
-			record.docFilepath = destFilepath.toString ();
-			if (docCacheFilepath.exists ()) {
-				destFilepath = new File (docModel.projectsPath, docCacheFilepath.getName ());
-				Utils.copyFile (docCacheFilepath.toString (), destFilepath.toString ());
-			}
+		// Copy cache document in pickle file
+		File docCacheFilepath = new File (Utils.getResultsFile (docRecord.docFilepath, "CACHE.pkl"));
+		docRecord.docFilepath = destFilepath.toString ();
+		if (docCacheFilepath.exists ()) {
+			destFilepath = new File (docModel.projectsPath, docCacheFilepath.getName ());
+			Utils.copyFile (docCacheFilepath.toString (), destFilepath.toString ());
 		}
 	}
 

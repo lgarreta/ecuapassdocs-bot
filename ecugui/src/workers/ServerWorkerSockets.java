@@ -106,7 +106,7 @@ public class ServerWorkerSockets extends SwingWorker {
 		try {
 			this.initSocket (portNumber);
 			
-			controller.out ("Starting process:%s:%s:%s".formatted (service, data1, data2));
+			controller.out ("Starting process:%s:%s:%s".format (service, data1, data2));
 			// Send request to Python server
 			String requestString = "" + service + " " + data1 + " " + data2;
 			writer.println (requestString);          // "REQUEST ARG1 ARG2"
@@ -278,7 +278,7 @@ public class ServerWorkerSockets extends SwingWorker {
 	protected void done () {
 		try {
 			// Called when the background thread finishes execution
-			System.out.println (">>> ervidor finalizado...");
+			System.out.println (">>> Servidor finalizado...");
 			String statusMsg = (String) get ();
 			System.out.println (statusMsg);
 

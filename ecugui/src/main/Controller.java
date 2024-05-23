@@ -11,7 +11,7 @@ public class Controller {
 		System.out.println (">> OnTableCellSelected not implemented.");
 	}
 
-	public void onSendSelectedFiles  () throws FileNotFoundException {
+	public void onProcessDocument  () throws FileNotFoundException {
 		throw new UnsupportedOperationException ("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
 	}
 
@@ -85,10 +85,6 @@ public class Controller {
 		throw new UnsupportedOperationException ("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
 	}
 
-	public void onSelectAllFiles () {
-		throw new UnsupportedOperationException ("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-	}
-
 	void onWindowClossing () {
 		throw new UnsupportedOperationException ("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
 	}
@@ -141,6 +137,10 @@ public class Controller {
 	}
 
 	public void onConfigDialogCancelar () {
+		throw new UnsupportedOperationException ("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+	}
+
+	boolean processSelectedDocument () {
 		throw new UnsupportedOperationException ("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
 	}
 

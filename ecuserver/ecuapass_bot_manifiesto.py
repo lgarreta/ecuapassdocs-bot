@@ -188,10 +188,11 @@ class EcuBotManifiesto (EcuBot):
 		self.skipN (2, "LEFT"); self.fillText     ("69_CPIC", "NO_TAB"); # Fill "Cartaporte" number
 		self.skipN (4)                   # Go to found cartaportes
 		py.press ("down")
+		py.press ("enter")
 		#self.clickSelectedCartaporte ("69_CPIC")
-		#py.press ("Tab"); py.press ("space")
+		py.press ("Tab"); py.press ("space")
 
-		return (f"Ingresado exitosamente el documento {self.jsonFilepath}")
+		Utils.printx (f"MENSAJE: Finalizada digitación. Seleccione la Carta de Porte. ")
 
 #--------------------------------------------------------------------
 # Call to main

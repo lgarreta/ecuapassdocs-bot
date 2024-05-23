@@ -47,7 +47,7 @@ def main ():
 #-------------------------------------------------------------------
 # Get document values from CODEBIN web using PDF file doc number
 #-------------------------------------------------------------------
-def getValuesFromCodebinWeb (pdfFilepath, settings):
+def mainGetValuesFromCodebinWeb (pdfFilepath, settings):
 	try:
 		webdriver = CodebinBot.getWebdriver ()
 		bot       = CodebinBot (settings, webdriver, pdfFilepath)
@@ -65,8 +65,8 @@ def getValuesFromCodebinWeb (pdfFilepath, settings):
 		json.dump (azureValues, open (outDocFilename, "w"), indent=4, sort_keys=True)
 
 		return outDocFilename
-	except CodebinDocumentNotFound as ex:
-		raise
+	except DocumentNotFoundException as ex:
+		raise ex
 	except:
 		raise Exception ("Intentelo nuevamente. Problemas conectando con CODEBIN. Revise, URL, usuario y contraseña.") 
 		#Utils.printx (f"ALERTA: Problemas al conectarse con CODEBIN. Revise URL, usuario y contraseña") 
@@ -136,9 +136,12 @@ class CodebinBot:
 	@staticmethod
 	def initCodebinWebdriver ():
 		Utils.printx (">>>>>>>>>>>>>>>> Iniciando CODEBIN firefox <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+
 		def funThreadFirefox ():
 			options = Options()
 			options.add_argument("--headless")
+			options.add_argument('--disable-extensions')
+			options.add_argument('--blink-settings=imagesEnabled=false')
 			CodebinBot.IS_OPEN = False
 			CodebinBot.LAST_PAIS = ""
 			CodebinBot.webdriver = webdriver.Firefox (options=options)
@@ -180,9 +183,8 @@ class CodebinBot:
 
 			return codebinValues
 		except:
-			Utils.printException ("Error en CodebinBot.getValuesFromCodebinWeb")
 			self.quitCodebin ()
-			return None
+			raise
 
 
 	#-------------------------------------------------------------------
@@ -191,12 +193,17 @@ class CodebinBot:
 		docId = None
 		try:
 			#table   = container.find_element (By.TAG_NAME, "table")
-			docLink = docsTable.find_element (By.PARTIAL_LINK_TEXT, docNumber)
-			idText  = docLink.get_attribute ("onclick")
-			docId   = re.findall (r"\d+", idText)[-1]
+			docLink    = docsTable.find_element (By.PARTIAL_LINK_TEXT, docNumber)
+			idText     = docLink.get_attribute ("onclick")
+			textLink   = docLink.text
+			docId      = re.findall (r"\d+", idText)[-1]
+
+			Utils.printx (f"+++ Documento buscado: '{docNumber}' : Documento encontrado: '{textLink}'")
+			if docNumber != textLink.strip():
+				message = f"No se encontró el documento número: '{docNumber}'"
+				raise DocumentNotFoundException (message)
 		except NoSuchElementException:
-			Utils.printException ("No se encontró el documento número: '{docNumber}'")
-			raise CodebinDocumentNotFound ("No se encontró el documento número: '{docNumber}'")
+			raise
 		except:
 			raise
 		return docId
@@ -654,7 +661,7 @@ def startCodebinBot (docType, codebinFieldsFile):
 class CodebinException (Exception):
 	pass
 
-class CodebinDocumentNotFound (CodebinException):
+class DocumentNotFoundException (CodebinException):
 	pass
 #-----------------------------------------------------------
 # Call to main

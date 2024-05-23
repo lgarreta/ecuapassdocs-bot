@@ -67,7 +67,8 @@ public class ResultsController extends Controller {
 	// Show document image and record into ResultsView
 	public void showRecord (DocRecord docRecord) {
 		try {
-			imageView.showImage (new File (docRecord.docFilepath));
+			File imgFile = new File (docRecord.docFilepath);
+			imageView.showImage (imgFile);
 			if (docRecord.docType.equals ("CARTAPORTE"))
 				ecuapassView = new EcuapassViewCartaporte ();
 			else if (docRecord.docType.equals ("MANIFIESTO"))

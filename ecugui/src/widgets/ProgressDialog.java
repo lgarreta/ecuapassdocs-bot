@@ -4,9 +4,11 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import main.Controller;
 
 // Creates a dialog for waiting to finish or cancel the document processing
 public class ProgressDialog {
+
 	private static final int DIALOG_WIDTH = 300;
 	private static final int DIALOG_HEIGHT = 150;
 	private static final int TIMER_DELAY = 1000; // 1 second
@@ -18,9 +20,13 @@ public class ProgressDialog {
 	private JButton cancelButton;
 	private int elapsedTime = 0;
 	private Timer timer;
+	Controller controller;
 
 	public ProgressDialog (JFrame mainFrame) {
 		this.mainFrame = mainFrame;
+	}
+	public void setController (Controller controller) {
+		this.controller = controller;
 	}
 
 	public void startProcess () {
@@ -29,7 +35,7 @@ public class ProgressDialog {
 		progressDialog = new JDialog (mainFrame, "Analizando documentos...", Dialog.ModalityType.APPLICATION_MODAL);
 		progressDialog.setSize (DIALOG_WIDTH, DIALOG_HEIGHT);
 		progressDialog.setResizable (false);
-		progressDialog.setLocationRelativeTo(mainFrame);
+		progressDialog.setLocationRelativeTo (mainFrame);
 		progressDialog.setLayout (new BorderLayout ());
 
 		messageLabel = new JLabel ("Analizando documentos...");
@@ -50,11 +56,14 @@ public class ProgressDialog {
 		progressDialog.add (timerPanel, BorderLayout.CENTER);
 		progressDialog.add (buttonPanel, BorderLayout.SOUTH);
 
+		elapsedTime = 0;
+		int LIMIT_TIME = 15;
 		timer = new Timer (TIMER_DELAY, new ActionListener () {
 			@Override
 			public void actionPerformed (ActionEvent e) {
-				elapsedTime++;
 				timerLabel.setText ("Tiempo transcurrido: " + elapsedTime + " seconds");
+				if (elapsedTime++ > LIMIT_TIME)
+					endProcess ("limit_time");
 			}
 		});
 		timer.start ();
@@ -63,8 +72,8 @@ public class ProgressDialog {
 	}
 
 	public void endProcess (String actionType) {
-		if (actionType.equals ("document_processed") ||
-			actionType.equals ("cancel_event")) {
+		if (actionType.equals ("limit_time") || actionType.equals ("document_processed")
+			|| actionType.equals ("cancel_event")) {
 			timer.stop ();
 			progressDialog.dispose ();
 			mainFrame.setEnabled (true);

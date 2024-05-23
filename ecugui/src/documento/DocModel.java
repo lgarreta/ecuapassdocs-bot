@@ -15,7 +15,8 @@ public class DocModel {
 
 	ArrayList<DocRecord> selectedRecords;             // Invoice files selected for processing
 	ArrayList<DocRecord> processedRecords;         // Invoice files "rightly" processed
-	ArrayList<String> notProcessedFiles;
+	public DocRecord currentRecord = null;
+	
 	public static String projectsPath;  // Global dir for save and open all projects
 	public static String workingPath;  // Current dir of the project
 	public static String runningPath;     // Application start running dir
@@ -32,7 +33,6 @@ public class DocModel {
 	public DocModel () {
 		selectedRecords = new ArrayList<> ();
 		processedRecords = new ArrayList<> ();
-		notProcessedFiles = new ArrayList<> ();
 	}
 
 	public void initGlobalPaths () {
@@ -96,10 +96,6 @@ public class DocModel {
 
 	public void addProcessedRecord (DocRecord record) {
 		processedRecords.add (record);
-	}
-
-	public void addNotProcessedFile (String invoiceFilepath) {
-		notProcessedFiles.add (invoiceFilepath);
 	}
 
 	public void addSelectedRecord (DocRecord record) {

@@ -59,7 +59,7 @@ public final class ImageViewLens extends javax.swing.JPanel {
 				updateImageSize ();
 			}
 		};
-			
+
 		MouseAdapter mouseAdapter = new MouseAdapter () {
 			@Override
 			public void mousePressed (MouseEvent e) {
@@ -131,11 +131,17 @@ public final class ImageViewLens extends javax.swing.JPanel {
 
 	public void showImage (File docFilepath) {
 		try {
-			File imagePath = docFilepath;
-			if ("pdf".equals (Utils.getFileContentType (docFilepath))) {
-				imagePath = Utils.convertPDFToImage (docFilepath);
-			}else
-				System.out.println (">>> ERROR: Archivo no es un PDF");
+			File imagePath = null;
+			if (docFilepath.getName().contains ("DUMMY"))
+				imagePath = Utils.getDefaultDocImage (docFilepath, this);
+			else {
+				if ("pdf".equals (Utils.getFileContentType (docFilepath)))
+					imagePath = Utils.convertPDFToImage (docFilepath);
+				else {
+					System.out.println (">>> ERROR: Archivo no es un PDF");
+					return;
+				}
+			}
 
 			ImageIcon imageIcon = new ImageIcon (imagePath.toString ());
 			image = imageIcon.getImage ();
@@ -261,9 +267,9 @@ class ImageLabel extends JLabel {
 
 	public void setSecondaryImage (Image image) {
 		int width = (int) (zoomSecondaryImage * image.getWidth (null));
-		int height = (int) (zoomSecondaryImage* image.getHeight (null));
-		
-		secondaryImage  = image.getScaledInstance (width, height, Image.SCALE_SMOOTH);
+		int height = (int) (zoomSecondaryImage * image.getHeight (null));
+
+		secondaryImage = image.getScaledInstance (width, height, Image.SCALE_SMOOTH);
 	}
 
 	public void setIcon (ImageIcon imageIcon) {
@@ -324,14 +330,17 @@ class ImageLabel extends JLabel {
 			int Xoffset = (fW - iW) / 2, Yoffset = (fH - iH) / 2;
 
 			// Update point with panel offset
-			pri.x -= Xoffset;	pri.y -= Yoffset;
+			pri.x -= Xoffset;
+			pri.y -= Yoffset;
 
 			// Set area dimensions
-			int w = 4 * zoom;		
+			int w = 4 * zoom;
 			int h = 2 * zoom;
-			int Xs = (int) (pri.x * factor); 	int Ys = (int) (pri.y * factor);
+			int Xs = (int) (pri.x * factor);
+			int Ys = (int) (pri.y * factor);
 
-			int Xi = Xs - 2 * zoom;		int Yi = Ys - 1 * zoom;
+			int Xi = Xs - 2 * zoom;
+			int Yi = Ys - 1 * zoom;
 
 			// Left side out of bounds
 			int Xd = pri.x - 2 * zoom;
@@ -339,7 +348,8 @@ class ImageLabel extends JLabel {
 				Xi = Xi + abs (Xd);
 
 			// Righ side out of bounds
-			int Xe = pri.x + 2 * zoom;	int We = Xe - pW;
+			int Xe = pri.x + 2 * zoom;
+			int We = Xe - pW;
 			if (Xe > pW)
 				Xi = Xi - We;
 
@@ -349,7 +359,8 @@ class ImageLabel extends JLabel {
 				Yi = Yi + abs (Yd);
 
 			// Bottom side out of bounds
-			int Ye = pri.y + 1 * zoom;	int He = Ye - pH;
+			int Ye = pri.y + 1 * zoom;
+			int He = Ye - pH;
 			if (Ye > pH)
 				Yi = Yi - He;
 
@@ -361,7 +372,7 @@ class ImageLabel extends JLabel {
 			zoomedInImage = bufferedImage.getSubimage (Xi, Yi, w, h);
 			frame.repaint ();
 		} catch (java.awt.image.RasterFormatException ex) {
-			
+
 		}
 
 	}
