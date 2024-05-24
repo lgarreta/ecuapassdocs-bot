@@ -44,13 +44,14 @@ public class DocRecord {
 		this.jsonFilepath = null;
 		this.mainFields = null;
 		setDocType (Utils.getDocumentTypeFromPDF (docFilepath));
-		
+
 	}
+
 	public DocRecord (String docFilepath, String docType) {
 		this.docFilepath = docFilepath;
 		this.jsonFilepath = null;
 		this.mainFields = null;
-		setDocType (docType);		
+		setDocType (docType);
 	}
 
 	// Constructor used after processing files
@@ -61,6 +62,10 @@ public class DocRecord {
 		this.mainFields = this.getMainFields ();
 	}
 	
+	public String getEcufieldsFile () {
+		return this.jsonFilepath;
+	} 
+
 	public void setDocType (String docType) {
 		this.docType = docType;
 		String docPrefix = "NONE";
@@ -70,9 +75,15 @@ public class DocRecord {
 			this.docTypeFilename = docFilename;
 		else {
 			switch (this.docType) {
-				case "CARTAPORTE":  docPrefix = "CPI"; break;
-				case "MANIFIESTO":  docPrefix = "MCI"; break;
-				case "DECLARACION": docPrefix = "DCL"; break;
+				case "CARTAPORTE":
+					docPrefix = "CPI";
+					break;
+				case "MANIFIESTO":
+					docPrefix = "MCI";
+					break;
+				case "DECLARACION":
+					docPrefix = "DCL";
+					break;
 			}
 			this.docTypeFilename = docPrefix + "-" + docFilename;
 		}
@@ -105,9 +116,21 @@ public class DocRecord {
 		return (fields);
 	}
 
-	// Return document info: filepath or mainFields after processed
 	@Override
 	public String toString () {
+		String out = "docType: " + docType + "\n"
+			+ "	docFilepath: " + docFilepath + "\n"
+			+ "	jsonFilepath: " + jsonFilepath + "\n"
+			+ "	docTypeFilename: " + docTypeFilename + "\n"
+			+ "	docFilename: " + docFilename + "\n";
+		return out;
+	}
+
+	
+	
+	// Return document info: filepath or mainFields after processed
+	
+	public String toStringFull () {
 		StringBuilder str = new StringBuilder ();
 
 		if (this.jsonFilepath == null)
@@ -137,22 +160,22 @@ public class DocRecord {
 
 		try (FileReader fileReader = new FileReader (jsonFilepath); BufferedReader bufferedReader = new BufferedReader (
 			new InputStreamReader (new FileInputStream (jsonFilepath), "UTF-8"))) {
-				JsonObject jsonObject = (JsonObject) jsonParser.parse (fileReader).getAsJsonObject ();
-				TreeSet<String> keysSet = new TreeSet (jsonObject.keySet ());
-				for (String key : keysSet) {
-					jsonObject.addProperty (key, (String) mainFields.get (key));
-				}
-				// Step 3: Write the updated JSON object back to the file
-				Gson gson = new GsonBuilder ()
-					.setPrettyPrinting ()
-					.serializeNulls ()
-					.create ();
-				try (OutputStream os = new FileOutputStream (jsonFilepath); Writer writer = new OutputStreamWriter (os, "UTF-8")) {
-					// Serialize the object to JSON and write it to the file with UTF-8 encoding
-					gson.toJson (jsonObject, writer);
-				}
-			} catch (IOException ex) {
-				Logger.getLogger (DocRecord.class.getName ()).log (Level.SEVERE, null, ex);
+			JsonObject jsonObject = (JsonObject) jsonParser.parse (fileReader).getAsJsonObject ();
+			TreeSet<String> keysSet = new TreeSet (jsonObject.keySet ());
+			for (String key : keysSet) {
+				jsonObject.addProperty (key, (String) mainFields.get (key));
 			}
+			// Step 3: Write the updated JSON object back to the file
+			Gson gson = new GsonBuilder ()
+				.setPrettyPrinting ()
+				.serializeNulls ()
+				.create ();
+			try (OutputStream os = new FileOutputStream (jsonFilepath); Writer writer = new OutputStreamWriter (os, "UTF-8")) {
+				// Serialize the object to JSON and write it to the file with UTF-8 encoding
+				gson.toJson (jsonObject, writer);
+			}
+		} catch (IOException ex) {
+			Logger.getLogger (DocRecord.class.getName ()).log (Level.SEVERE, null, ex);
 		}
 	}
+}

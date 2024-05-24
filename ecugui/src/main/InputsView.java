@@ -290,10 +290,10 @@ public class InputsView extends javax.swing.JPanel {
 			return null;
 	}
 
-	public String createFilenameFromDocNumber () throws Exception {
+	
+	public String createFilenameFromDocNumber (String docNumber) throws Exception {
 		if (this.checkDocNumberType ()) {
-			String docNumber = this.getDocNumber ();
-			String filename = "DUMMY-%s-%s.pdf".format (getDocType ("SHORTNAME"), docNumber);
+			String filename = "DUMMY-" + getDocType ("SHORTNAME") + "-" + docNumber + ".pdf";
 			return filename;
 		} else
 			throw new Exception ("No se pudo crear nombre de archivo CODEBIN");

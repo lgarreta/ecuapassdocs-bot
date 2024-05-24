@@ -17,7 +17,7 @@ import workers.ServerWorker;
 public class ResultsController extends Controller {
 
 	Controller controller;
-	DocModel docModel;
+	DocModel doc;
 
 	public ResultsView resultsView;
 	FileSelectionTable fileSelectionTable;
@@ -25,9 +25,9 @@ public class ResultsController extends Controller {
 	ImageViewLens imageView;
 	ServerWorker serverWorker;  // Server listening messages and executing tasks
 
-	public ResultsController (Controller controller, DocModel docModel, ServerWorker serverWorker) {
+	public ResultsController (Controller controller, DocModel doc, ServerWorker serverWorker) {
 		this.controller = controller;
-		this.docModel = docModel;
+		this.doc = doc;
 		this.serverWorker = serverWorker;
 
 		resultsView = new ResultsView ();
@@ -39,7 +39,7 @@ public class ResultsController extends Controller {
 
 	public ResultsController (Controller controller, DocModel model, ResultsView resultsview) {
 		this.controller = controller;
-		this.docModel = model;
+		this.doc = model;
 		this.resultsView = resultsview;
 
 		imageView = resultsView.getImageView ();
@@ -92,18 +92,16 @@ public class ResultsController extends Controller {
 	@Override
 	public void onBotSubmitToEcuapass () {
 		out ("Inicio de digitación automatica del documento...");
-		if (docModel.getSelectedRecords ().isEmpty ()) {
-			JOptionPane.showMessageDialog (null, "No hay documentos seleccionadoss para procesar!");
+		String jsonFilename = doc.currentRecord.getEcufieldsFile ();
+		System.out.println  ("+++ currentRecord: " + doc.currentRecord );
+		if (jsonFilename == null) {
+			JOptionPane.showMessageDialog (this.resultsView, "No hay documentos seleccionados para procesar!");
 			return;
 		}
-		// Get selected document and update it
-		String docFilename = fileSelectionTable.getCurrentFileSelected ();
-
-		String jsonFilename = Utils.getResultsFile (docFilename, "ECUFIELDS.json");
-		this.updateJsonDocumentWithViewChanges (docModel.workingPath, jsonFilename);
+		//this.updateJsonDocumentWithViewChanges (jsonFilename);
 		// Show instructions and start process
 
-		String docType = Utils.getDocumentTypeFromFilename (docFilename);
+		String docType = Utils.getDocumentTypeFromFilename (new File (jsonFilename).getName());
 		String info = "";
 		info += "1. Aliste la ventana del ECUAPASS para cargar " + docType + "S.\n";
 		info += "2. Engrandezca la ventana del ECUAPASS y deslicela hasta el inicio.\n\n";
@@ -114,13 +112,46 @@ public class ResultsController extends Controller {
 		if (option != JOptionPane.OK_OPTION)
 			return;
 
-		serverWorker.startProcess ("bot_processing", jsonFilename, docModel.runningPath);
+		this.updateJsonDocumentWithViewChanges (jsonFilename);
+				
+		System.out.println  ("+++ startProcess " + jsonFilename);
+		jsonFilename = Utils.convertToOSPath (jsonFilename);
+		System.out.println  ("+++ startProcess OS "  + jsonFilename);
+		serverWorker.startProcess ("bot_processing", jsonFilename, doc.runningPath);
 	}
 
+	public void OLD_onBotSubmitToEcuapass () {
+		out ("Inicio de digitación automatica del documento...");
+		System.out.println  ("+++ currentRecord: " + doc.currentRecord );
+		if (doc.getSelectedRecords ().isEmpty ()) {
+			JOptionPane.showMessageDialog (null, "No hay documentos seleccionados para procesar!");
+			return;
+		}
+		// Get selected document and update it
+		String docFilename = fileSelectionTable.getCurrentFileSelected ();
+
+		String jsonFilename = Utils.getResultsFile (docFilename, "ECUFIELDS.json");
+		this.updateJsonDocumentWithViewChanges (jsonFilename);
+		// Show instructions and start process
+
+		String docType = Utils.getDocumentTypeFromFilename (docFilename);
+		String info = "";
+		info += "1. Aliste la ventana del ECUAPASS para cargar " + docType + "S.\n";
+		info += "2. Engrandezca la ventana del ECUAPASS y deslicela hasta el inicio.\n\n";
+		info += "3. Regrese a esta App y de click en 'Aceptar'";
+
+		Object[] options = {"Aceptar", "Cancelar"};
+		int option = JOptionPane.showOptionDialog (this.resultsView, info, "Preparación Digitación Automática",
+			JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options, null);
+		if (option != JOptionPane.OK_OPTION)
+			return;
+		serverWorker.startProcess ("bot_processing", jsonFilename, doc.runningPath);
+	}
+	
 	@Override
 	public void onBotSubmitToApp (String appName) {
 		out ("Transmistiendo el documento a la aplicación " + appName);
-		if (docModel.getSelectedRecords ().isEmpty ()) {
+		if (doc.getSelectedRecords ().isEmpty ()) {
 			JOptionPane.showMessageDialog (null, "No hay documentos seleccionadoss para transmitir!");
 			return;
 		}
@@ -138,9 +169,8 @@ public class ResultsController extends Controller {
 		}
 	}
 
-	public void updateJsonDocumentWithViewChanges (String workingDir, String jsonFilename) {
+	public void updateJsonDocumentWithViewChanges (String jsonFilepath) {
 		DocRecord docRecord = ecuapassView.updateRecord ();
-		String jsonFilepath = Paths.get (workingDir, jsonFilename).toString ();
 		docRecord.writeToJsonFile (jsonFilepath);
 	}
 

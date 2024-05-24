@@ -200,7 +200,7 @@ class CodebinBot:
 
 			Utils.printx (f"+++ Documento buscado: '{docNumber}' : Documento encontrado: '{textLink}'")
 			if docNumber != textLink.strip():
-				message = f"No se encontró el documento número: '{docNumber}'"
+				message = f"Documento número: '{docNumber}' no existe en CODEBIN"
 				raise DocumentNotFoundException (message)
 		except NoSuchElementException:
 			raise

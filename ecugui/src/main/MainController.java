@@ -11,7 +11,6 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import widgets.ImageViewLens;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -26,7 +25,6 @@ import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 import org.json.simple.parser.ParseException;
 import results.ResultsController;
-import widgets.InitialSettingsDialog;
 import widgets.ProgressDialog;
 import workers.ServerWorker;
 
@@ -117,6 +115,7 @@ public class MainController extends Controller {
 		String docFilepath = Utils.convertToOSPath (docRecord.docFilepath);
 		serverWorker.startProcess ("doc_processing", docFilepath, DocModel.runningPath);
 		progressDialog = new ProgressDialog (mainView);
+		progressDialog.setController (this);
 		progressDialog.startProcess ();
 	}
 
@@ -143,7 +142,7 @@ public class MainController extends Controller {
 			}
 			String selectedFilename = inputsView.getFileWithDocNumberFromFileChooser (docNumber);
 			if (selectedFilename == null) {
-				selectedFilename = inputsView.createFilenameFromDocNumber ();
+				selectedFilename = inputsView.createFilenameFromDocNumber (docNumber);
 				String docType = inputsView.getDocType ("LONGNAME");
 				selectedFile = new File (selectedFilename);
 				doc.currentRecord = new DocRecord (selectedFile.toString (), docType);
@@ -164,30 +163,28 @@ public class MainController extends Controller {
 	// Send selected file to ready table
 	// ServeWorker notification 
 	@Override
-	public void onEndProcessing (String statusMsg, String text
-	) {
+	public void onEndProcessing (String statusMsg, String text) {
 		try {
 			if (statusMsg.contains ("EXITO")) {
 				String docFilepath = text.split ("'")[1].trim ();
 				String jsonFilepath = Utils.getResultsFile (docFilepath, "ECUFIELDS.json");
 				String docType = Utils.getDocumentTypeFromFilename (docFilepath);
-				//new File (docFilepath).getName ().split ("-")[0];
 				DocRecord record = new DocRecord (docType, docFilepath, jsonFilepath);
+				doc.currentRecord = record;
+				System.out.println  ("+++ MainController currentRecord " + doc.currentRecord);
 				doc.addProcessedRecord (record);
 				resultsController.addProcessedRecord (record);
 				resultsController.resultsView.selectFirstRecord ();
-				progressDialog.endProcess ("document_processed");
 				tabsPanel.setSelectedIndex (2);
 			} else {
 				out ("Documento procesado con errores");
-				progressDialog.endProcess ("document_processed");
-				String message = text.split ("ERROR:")[1].replace ("\\", "\n");
+				String message = text.split (":", 2)[1].replace ("\\", "\n");
 				JOptionPane.showMessageDialog (mainView, message);
-
 			}
 		} catch (ParseException | IOException ex) {
-			Logger.getLogger (MainController.class
-				.getName ()).log (Level.SEVERE, null, ex);
+			Logger.getLogger (MainController.class.getName ()).log (Level.SEVERE, null, ex);
+		} finally {
+			progressDialog.endProcess ("document_processed");
 		}
 	}
 

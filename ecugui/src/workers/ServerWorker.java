@@ -66,6 +66,8 @@ public class ServerWorker extends SwingWorker {
 				System.exit (0);
 			} else if (statusMsg.contains ("SERVER: ERROR:"))
 				controller.onEndProcessing ("ERROR", statusMsg);
+			else if (statusMsg.contains ("Documento no encontrado"))
+				controller.onEndProcessing ("ERROR", statusMsg);
 			else if (statusMsg.contains ("SERVER: ALERTA:")) {
 				// Display to user'ALERTA' messages 
 				statusMsg = statusMsg.split ("ALERTA:")[1];
@@ -135,6 +137,7 @@ public class ServerWorker extends SwingWorker {
 			// Create JSON payload and write it to the connection's output stream
 			String formatStr = "{\"%s\":\"%s\", \"%s\":\"%s\", \"%s\":\"%s\"}";
 			String jsonPayload = String.format (formatStr, "service", service, "data1", data1, "data2", data2);
+			System.out.println  ("+++ payload" +  jsonPayload);
 			try (OutputStream os = connection.getOutputStream ()) {
 				byte[] input = jsonPayload.getBytes (StandardCharsets.UTF_8);
 				os.write (input, 0, input.length);

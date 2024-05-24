@@ -189,7 +189,7 @@ class EcuBotManifiesto (EcuBot):
 		self.skipN (4)                   # Go to found cartaportes
 		py.press ("down")
 		py.press ("enter")
-		#self.clickSelectedCartaporte ("69_CPIC")
+		self.clickSelectedCartaporte ("69_CPIC")
 		py.press ("Tab"); py.press ("space")
 
 		Utils.printx (f"MENSAJE: Finalizada digitación. Seleccione la Carta de Porte. ")

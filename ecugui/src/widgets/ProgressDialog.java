@@ -57,7 +57,7 @@ public class ProgressDialog {
 		progressDialog.add (buttonPanel, BorderLayout.SOUTH);
 
 		elapsedTime = 0;
-		int LIMIT_TIME = 15;
+		int LIMIT_TIME = 20;
 		timer = new Timer (TIMER_DELAY, new ActionListener () {
 			@Override
 			public void actionPerformed (ActionEvent e) {
@@ -72,7 +72,8 @@ public class ProgressDialog {
 	}
 
 	public void endProcess (String actionType) {
-		if (actionType.equals ("limit_time") || actionType.equals ("document_processed")
+		if (   actionType.equals ("limit_time") 
+			|| actionType.equals ("document_processed")
 			|| actionType.equals ("cancel_event")) {
 			timer.stop ();
 			progressDialog.dispose ();
