@@ -136,7 +136,7 @@ class EcuBot:
 		def fillData (fieldPais, fieldTipoId, fieldNumeroId):
 			self.fillBoxCheck (fieldPais)
 			processEcuapassId (fieldTipoId, fieldNumeroId)
-			self.fillBoxCheck (fieldTipoId)
+			self.fillBoxCheck (fieldTipoId); py.sleep (0.1)
 			self.fillText (fieldNumeroId)
 		#------------------------------------------------------------
 		procedimiento = self.fields [fieldProcedimiento]
@@ -208,9 +208,9 @@ class EcuBot:
 
 		pyperclip_copy (fieldValue)
 		py.hotkey ("ctrl", "v")
-		py.sleep (self.SLOW_PAUSE)
+		#py.sleep (self.SLOW_PAUSE)
 		py.press ("down")
-		py.sleep (self.SLOW_PAUSE)
+		#py.sleep (self.SLOW_PAUSE)
 
 		if TAB_FLAG == "TAB":
 			py.press ("Tab")
@@ -221,7 +221,7 @@ class EcuBot:
 	# Select value in combo box by pasting, checking, and pasting
 	# Return true if selected, raise an exception in other case.
 	#--------------------------------------------------------------------
-	def fillBoxCheck (self, fieldName, TAB_FLAG="TAB_CHECK"):
+	def fillBoxCheck (self, fieldName, TAB_FLAG="TAB_NOCHECK"):
 		try:
 			fieldValue = self.fields [fieldName]
 			Utils.printx (f"Llenando ComboBox '{fieldName}' : '{fieldValue}'...")
@@ -229,10 +229,10 @@ class EcuBot:
 				py.press ("Enter") if "NOTAB" in TAB_FLAG else py.press ("Tab")
 				return True
 
-			py.PAUSE = self.NORMAL_PAUSE
+			py.PAUSE = 0.1
 			for i in range (10):
 				pyperclip_copy (fieldValue)
-				py.hotkey ("ctrl", "v"); py.sleep (0.05);py.press ("down"); 
+				py.hotkey ("ctrl", "v"); py.sleep (0.1); py.press ("down"); 
 				pyperclip_copy ("")
 
 				py.hotkey ("ctrl","c"); 
@@ -240,13 +240,9 @@ class EcuBot:
 				Utils.printx (f"...Intento {i}: Buscando '{fieldValue}' en texto '{text}'")
 
 				if fieldValue.lower() in text.lower():
-					py.PAUSE = 0.3
 					pyperclip_copy (fieldValue)
-					py.hotkey ("ctrl", "v"); py.press ("enter"); py.sleep (0.01)
-					#py.hotkey ("ctrl", "v"); 
+					py.hotkey ("ctrl", "v"); py.sleep (0.1); py.press ("enter"); py.sleep (0.1)
 					py.PAUSE = self.NORMAL_PAUSE
-
-					#py.press ("TAB") if TAB_FLAG == "TAB" else py.press ("Enter")
 					py.press ("Enter") if "NOTAB" in TAB_FLAG else py.press ("Tab")
 
 					Utils.printx (f"...Encontrado '{fieldValue}' en '{text}'")

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-Fill CODEBIN web form from JSON fields document.
+Fill CODEBIN web form from JSON fields document....
 """
 import sys, json, re, time, os
 import PyPDF2
@@ -140,15 +140,16 @@ class CodebinBot:
 		def funThreadFirefox ():
 			options = Options()
 			options.add_argument("--headless")
-			options.add_argument('--disable-extensions')
-			options.add_argument('--blink-settings=imagesEnabled=false')
+			#options.add_argument('--disable-extensions')
+			#options.add_argument('--blink-settings=imagesEnabled=false')
 			CodebinBot.IS_OPEN = False
 			CodebinBot.LAST_PAIS = ""
 			CodebinBot.webdriver = webdriver.Firefox (options=options)
 			Utils.printx (">>>>>>>>>>>>>>>> CODEBIN firefox is running <<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 
-		threadFirefox = threading_Thread (target=funThreadFirefox, args=())
-		threadFirefox.start ()
+		threadWebdriver = threading_Thread (target=funThreadFirefox, args=())
+		#threadFirefox.start ()
+		return threadWebdriver
 
 	#-------------------------------------------------------------------
 	#-- Get the CODEBIN id from document number
@@ -235,9 +236,10 @@ class CodebinBot:
 		time.sleep (1)
 
 		# get and set number into input 'Buscar'
+		time.sleep (4)
 		cpi_lista_container = self.webdriver.find_elements (By.CLASS_NAME, "container")
 		container           = cpi_lista_container [0]
-		time.sleep (1)
+		time.sleep (2)
 		searchField    = container.find_element (By.TAG_NAME, "input")
 		searchTable    = container.find_element (By.TAG_NAME, "table")
 

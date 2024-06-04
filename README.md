@@ -2,7 +2,8 @@
 Extracción y digitación automática de docuentos de cartaportes.
 
 ## LOG
-24-Mayo:  r0.87 Redesigned Java with currentRecord. Added DocNumber to GUI, improved timer. 
+04-Junio: r0.880: Improved embalaje with codes. Changed to fillBoxCheck non-stop.
+24-Mayo:  r0.87   Redesigned Java with currentRecord. Added DocNumber to GUI, improved timer. 
 18/Mayo:  r0.851  Improved Codebin going back. Improved exit (GUI and Server).
 17/Mayo:  r0.85.  Improved Codebin extraction by going back. Added two users to GUI.
 13/Mayo:  r0.840. Redesigned to extract info from CODEBIN

@@ -6,7 +6,6 @@ import java.awt.Frame;
 import main.Controller;
 import main.MainController;
 import main.Utils;
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.File;
@@ -27,27 +26,27 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
-import javax.swing.SwingWorker;
 import widgets.TopMessageDialog;
 
 /*
  * Execute command line app with parameters. Outputs are sent to controller to
  * show them in both console and view.
  */
-public class ServerWorker extends SwingWorker {
+public class ServerProcess {
 
 	Controller controller;
 	DocModel docModel;
+	Process process;
+
 	String serverUrl; // Server address and entry point
 	ArrayList<String> commandList; // Command line as list
 
-	public ServerWorker (Controller controller, DocModel docModel) {
+	public ServerProcess (Controller controller, DocModel docModel) {
 		this.controller = controller;
 		this.docModel = docModel;
 		serverUrl = this.getServerUrl (5000); // Server address and entry point	
@@ -87,21 +86,6 @@ public class ServerWorker extends SwingWorker {
 		return true;
 	}
 
-	// Handle the response from the server
-	public boolean handleServerResponse (HttpURLConnection connection) {
-		try {
-			int responseCode = connection.getResponseCode ();
-			if (responseCode != HttpURLConnection.HTTP_OK) {
-				System.out.println ("Error sending message to server!");
-				return false;
-			}
-		} catch (IOException ex) {
-			Logger.getLogger (ServerWorker.class.getName ()).log (Level.SEVERE, null, ex);
-		}
-		return true;
-	}
-
-	@Override
 	// Handle server intermediate results received durint thread execution
 	protected void process (List chunks) {
 		for (Object obj : chunks) {
@@ -141,36 +125,54 @@ public class ServerWorker extends SwingWorker {
 	}
 
 	// Start the server process and publish its messages
-	@Override
-	protected String doInBackground () throws Exception {
+	public void execute () {
 		this.createExecutableCommand ();
-		if (this.copyResourcesToTempDir () == false)
-			return ("ERROR: No se pudo copiar recursos.");
+		if (this.copyResourcesToTempDir ())
+			controller.out ("CLIENTE: Ejecutándose el servidor: " + commandList);
+		else
+			controller.out ("ERROR: No se pudo copiar recursos.");
 
-		controller.out ("CLIENTE: Ejecutándose el servidor: " + commandList);
-		ProcessBuilder processBuilder;
-		processBuilder = new ProcessBuilder (commandList);
-		processBuilder.redirectErrorStream (true);
-		//processBuilder.directory (new File (this.serverHomePath));
-		Process process = processBuilder.start ();
-
-		String lastLine = "";
 		try {
-			BufferedInputStream bis = new BufferedInputStream (process.getInputStream ());
-			BufferedReader stdout = new BufferedReader (new InputStreamReader (bis, "UTF-8"));
-			String stdoutLine = "";
-			while ((stdoutLine = stdout.readLine ()) != null) {
-				lastLine = stdoutLine;
-				publish (stdoutLine);
-			}
-		} catch (IOException e) {
-			e.printStackTrace ();
-			process.getInputStream ().close ();
-		} // Return last line to check if script successfully ended 
-		return (lastLine);
-	}
-	// Create the URL reading a port number in a file 'url_port.txt" written by main python program
+			ProcessBuilder processBuilder = new ProcessBuilder (commandList);
+			processBuilder.redirectErrorStream (true);
+			process = processBuilder.start ();
+			// Handle the response
+			System.out.println ("+++ Handling the response...");
+			new Thread (() -> {
+				this.handleServerResponse (process);
+			}).start ();
 
+			process.waitFor ();
+		} catch (IOException | InterruptedException e) {
+			e.printStackTrace ();
+		}
+	}
+
+	// Handle the response from the server
+	public boolean handleServerResponse (Process process) {
+		try {
+			// Read the response (optional)
+			BufferedReader reader = new BufferedReader (new InputStreamReader (process.getInputStream ()));
+			String line;
+			while ((line = reader.readLine ()) != null) {
+				//controller.out (line);
+				List<String> chunks = Arrays.asList (line);
+				this.process (chunks);
+			}
+			reader.close ();
+			return true;
+		} catch (IOException ex) {
+			Logger.getLogger (ServerWorker.class.getName ()).log (Level.SEVERE, null, ex);
+		}
+		return false;
+	}
+
+	// Stop the process forcefully
+	public void cancel (boolean byForce) {
+		process.destroyForcibly ();
+	}
+
+	// Create the URL reading a port number in a file 'url_port.txt" written by main python program
 	public String getServerUrl () {
 		String fileName = "url_port.txt";
 		BufferedReader reader = null;
@@ -198,18 +200,6 @@ public class ServerWorker extends SwingWorker {
 
 		String urlString = this.getServerUrl (portNumber);
 		return urlString;
-	}
-
-	@Override
-	// Called when the server background thread finishes execution
-	protected void done () {
-		try {
-			String statusMsg = (String) get ();
-			System.out.println (statusMsg);
-		} catch (InterruptedException | ExecutionException ex) {
-			Logger.getLogger (ServerWorker.class
-				.getName ()).log (Level.SEVERE, null, ex);
-		}
 	}
 
 	//-----------------------------------------------------------------	
@@ -342,12 +332,12 @@ public class ServerWorker extends SwingWorker {
 	public static void main (String[] args) {
 		try {
 			MainController ctr = new MainController ();
-			ServerWorker rw = new ServerWorker (new Controller (), new DocModel ());
+			ServerProcess rw = new ServerProcess (new Controller (), new DocModel ());
 			//rw.execute ();
-			//new Thread(() -> rw.execute ()).start();
+			new Thread(() -> rw.execute ()).start();
 
 		} catch (Exception ex) {
-			Logger.getLogger (ServerWorker.class
+			Logger.getLogger (ServerProcess.class
 				.getName ()).log (Level.SEVERE, null, ex);
 		}
 	}

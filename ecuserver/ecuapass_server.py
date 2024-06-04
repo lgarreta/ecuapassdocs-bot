@@ -8,7 +8,7 @@ LOG:
 
 import os, sys
 import signal
-from threading import Thread as threading_Thread
+from threading import Thread 
 
 # For server
 from flask import Flask as flask_Flask 
@@ -50,7 +50,8 @@ def main ():
 		else:
 			mainDoc (sys.argv [1], os.getcwd())
 	else:
-		EcuServer.run_server_forever()
+		#EcuServer.run_server_forever()
+		EcuServer.start ()
 
 def printx (*args, flush=True, end="\n"):
 	print ("SERVER:", *args, flush=flush, end=end)
@@ -59,12 +60,17 @@ def printx (*args, flush=True, end="\n"):
 #-----------------------------------------------------------
 app = flask_Flask (__name__)
 class EcuServer:
-	shouldStop = False
-	server     = None
-	runningDir = os.getcwd()
+	def start ():
+		webdriverThread = CodebinBot.initCodebinWebdriver ()
+		serverThread    = Thread (target=EcuServer.run_server_forever)
+
+		serverThread.start ();
+		webdriverThread.start ()
+
+		serverThread.join ();
+		webdriverThread.join ()
 
 	def run_server_forever ():
-		CodebinBot.initCodebinWebdriver ()
 
 		portNumber  = EcuServer.getPortNumber ()
 		server = make_server('127.0.0.1', portNumber, app)
@@ -83,9 +89,6 @@ class EcuServer:
 			# Update flag server
 			global request_received
 			request_received = True
-
-			if EcuServer.shouldStop:
-				return {'result': 'Servidor cerrándose...'}
 
 			# Get the file name from the request
 			service = flask_request.json ['service']
@@ -156,7 +159,7 @@ class EcuServer:
 
 		TARGET = ecudoc.extractDocumentFields
 		ARGS   = (docFilepath, runningDir)
-		threading_Thread (target=TARGET, args=ARGS).start ()
+		Thread (target=TARGET, args=ARGS).start ()
 
 	#----------------------------------------------------------------
 	# Open Ecuapassdocs URL in Chrome browser

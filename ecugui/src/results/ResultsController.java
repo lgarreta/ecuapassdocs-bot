@@ -7,11 +7,11 @@ import main.Controller;
 import main.FileSelectionTable;
 import main.Utils;
 import java.io.File;
-import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import workers.ServerProcess;
 import workers.ServerWorker;
 
 public class ResultsController extends Controller {

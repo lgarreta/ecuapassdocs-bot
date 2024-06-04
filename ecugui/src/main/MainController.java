@@ -26,6 +26,7 @@ import javax.swing.WindowConstants;
 import org.json.simple.parser.ParseException;
 import results.ResultsController;
 import widgets.ProgressDialog;
+import workers.ServerProcess;
 import workers.ServerWorker;
 
 public class MainController extends Controller {
@@ -95,7 +96,8 @@ public class MainController extends Controller {
 
 		doc.printGlobalPaths (this);
 
-		serverWorker.execute ();
+		//serverWorker.execute ();
+		new Thread(() -> serverWorker.execute ()).start();
 	}
 
 	// Start document processing after button pressed in InpusView
@@ -113,6 +115,7 @@ public class MainController extends Controller {
 		DocRecord docRecord = doc.currentRecord;
 
 		String docFilepath = Utils.convertToOSPath (docRecord.docFilepath);
+		System.out.println  ("+++ doc_processing : " + docRecord );
 		serverWorker.startProcess ("doc_processing", docFilepath, DocModel.runningPath);
 		progressDialog = new ProgressDialog (mainView);
 		progressDialog.setController (this);
@@ -171,7 +174,6 @@ public class MainController extends Controller {
 				String docType = Utils.getDocumentTypeFromFilename (docFilepath);
 				DocRecord record = new DocRecord (docType, docFilepath, jsonFilepath);
 				doc.currentRecord = record;
-				System.out.println  ("+++ MainController currentRecord " + doc.currentRecord);
 				doc.addProcessedRecord (record);
 				resultsController.addProcessedRecord (record);
 				resultsController.resultsView.selectFirstRecord ();
@@ -197,13 +199,19 @@ public class MainController extends Controller {
 	@Override
 	public void onWindowClossing () {
 		try {
-			boolean stopFlag = serverWorker.startProcess ("stop", null, null);
+			serverWorker.startProcess ("stop", null, null);
 			ClosingMessage.showClosingMessage ("Applicación se está cerrando", this.mainView);
 			out ("Finalizando Cliente...");
-			this.forcedExitWithTimer (5);
+			this.forcedExitWithTimer (10);
+			serverWorker.cancel (true);
+			System.exit (0);
 		} catch (Exception ex) {
-			ex.printStackTrace ();
+			out ("Worker cancelado");
+			//ex.printStackTrace ();
+		} finally {
+			System.exit (0);			
 		}
+		
 	}
 
 	//  InputsFileView for "reinitialize" selection
